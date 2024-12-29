@@ -1,0 +1,603 @@
+`include "pl_regs.vh" //automatically created and added by fwk with conf variables such a C_VERSION ...
+
+/* default values of defined variables */
+`ifndef C_ID
+`define C_ID 0xE1C00100
+`endif
+`ifndef C_VERSION
+`define C_VERSION 0x00000000
+`endif
+`ifndef C_PRJ_ID
+`define C_PRJ_ID 0xE1C00010
+`endif
+`ifndef C_PRJ_VERSION
+`define C_PRJ_VERSION 0x00000000
+`endif
+`ifndef C_PRJ_TIMESTAMP
+`define C_PRJ_TIMESTAMP 0x00000000
+`endif
+`ifndef C_PRJ_SHASUM
+`define C_PRJ_SHASUM 0x00000000
+`endif
+
+/*
+  module a address space
+*/
+addrmap pl_regs {
+  name = "Example module for the example application";
+  desyrdl_interface = "AXI4L";
+
+  reg {
+    desc = "Module Identification Number";
+    default sw = r;
+    default hw = r;
+    field {} data[32] = `C_ID;
+  } ID @0x00;
+
+  reg {
+    desc = "Module Version Number";
+    default sw = r;
+    default hw = r;
+    field {} changes [8] =  `C_VERSION & 0x000000FF;
+    field {} patch [8]   = (`C_VERSION & 0x0000FF00) >> 8;
+    field {} minor [8]   = (`C_VERSION & 0x00FF0000) >> 16;
+    field {} major [8]   = (`C_VERSION & 0xFF000000) >> 24;
+  } VERSION @0x04;
+
+  reg {
+    desc="Project Identification Number";
+    default sw = r;
+    default hw = r;
+    field {} data[32] = `C_PRJ_ID;
+  } PRJ_ID @0x10;
+
+  reg {
+    desc="Project Version Number";
+    default sw = r;
+    default hw = r;
+    field {} changes [8] =  `C_PRJ_VERSION & 0x000000FF;
+    field {} patch [8]   = (`C_PRJ_VERSION & 0x0000FF00) >> 8;
+    field {} minor [8]   = (`C_PRJ_VERSION & 0x00FF0000) >> 16;
+    field {} major [8]   = (`C_PRJ_VERSION & 0xFF000000) >> 24;
+  } PRJ_VERSION @0x14;
+
+  reg {
+    desc="Project Repository check sum.";
+    default sw = r;
+    default hw = r;
+      field {} data[32] = `C_PRJ_SHASUM;
+  } PRJ_SHASUM @0x18;
+
+  reg {
+    desc="Project compilation timestamp";
+    default sw = r;
+    default hw = r;
+    field {} data[32] = `C_PRJ_TIMESTAMP;
+  } PRJ_TIMESTAMP @0x1C;
+
+ 
+ 
+
+ 
+
+reg {
+    desc="ADC IDLY value";
+    default sw = rw;
+    default hw = r;
+    default swacc=true;
+    default swmod=true;
+    field {} data[9];
+  } adc_idlyval @0x20;
+
+
+reg {
+    desc="ADC IDLY strobe";
+    default sw = rw;
+    default hw = r;
+    default swacc=true;
+    default swmod=true;
+    field {} data[16];
+  } adc_idlystr @0x24;
+
+reg {
+    desc="ADC IDLY chA readback";
+    default sw = r;
+    default hw = w;
+    field {} data[9];
+  } adc_idlychardval @0x28;
+
+reg {
+    desc="ADC IDLY chB readback";
+    default sw = r;
+    default hw = w;
+    field {} data[9];
+  } adc_idlychbrdval @0x2C;
+
+reg {
+    desc="ADC IDLY chC readback";
+    default sw = r;
+    default hw = w;
+    field {} data[9];
+  } adc_idlychcrdval @0x30;
+
+reg {
+    desc="ADC IDLY chD readback";
+    default sw = r;
+    default hw = w;
+    field {} data[9];
+  } adc_idlychdrdval @0x34;
+
+
+
+reg {
+    desc="ADC FCO MMCM dly strobe";
+    default sw = rw;
+    default hw = rw;
+    default swacc=true;
+    default swmod=true;
+    field {} data[2];
+  } adc_mmcmdlystr @0x38;
+
+reg {
+    desc="AD9510 PLL Locked";
+    default sw = r;
+    default hw = w;
+    field {} data[1];
+  } pll_locked @0x3C;
+ 
+
+
+
+reg {
+    desc="AD9510 SPI PLL";
+    default sw = rw;
+    default hw = rw;
+    default swmod=true;
+    field {} data[32];
+  } pll_spi @0x40;
+ 
+ 
+ reg {
+    desc="DSA SPI";
+    default sw = rw;
+    default hw = r;
+    default swmod=true;
+    field {} data[8];
+  } dsa_spi @0x44;
+
+
+reg {
+    desc="ADC SPI access";
+    default sw = rw;
+    default hw = rw;
+    default swacc=true;
+    default swmod=true;
+    field {} data[32];
+  } adc_spi @0x48;
+
+
+reg {
+    desc="ADC ChA Raw Data";
+    default sw = r;
+    default hw = w;
+    field {} data[16];
+  } adc_cha @0x50;
+
+reg {
+    desc="ADC ChB Raw Data";
+    default sw = r;
+    default hw = w;
+    field {} data[16];
+  } adc_chb @0x54;
+  
+reg {
+    desc="ADC ChC Raw Data";
+    default sw = r;
+    default hw = w;
+    field {} data[16];
+  } adc_chc @0x58;
+  
+reg {
+    desc="ADC ChD Raw Data";
+    default sw = r;
+    default hw = w;
+    field {} data[16];
+  } adc_chd @0x5C;
+  
+  
+reg {
+    desc="LTC2986 Thermistor Controller SPI data";
+    default sw = rw;
+    default hw = rw;
+    default swacc=true;
+    default swmod=true;
+    field {} data[32];
+  } therm_spi @0x60;
+
+reg {
+    desc="LTC2986 Thermistor Controller SPI data";
+    default sw = rw;
+    default hw = r;
+    field {} data[2];
+  } therm_sel @0x64;
+
+
+  
+  
+  
+
+reg {
+    desc="Kx";
+    default sw = rw;
+    default hw = r;
+    field {} data[32] = 10000000;  /* 1e6 nm */
+  } kx @0x90;
+ 
+reg {
+    desc="Ky";
+    default sw = rw;
+    default hw = r;
+    field {} data[32] = 10000000; /* 10e6 nm */
+  } ky @0x94;
+ 
+ reg {
+    desc="ChA Gain";
+    default sw = rw;
+    default hw = r;
+    field {} data[16] = 32762;
+  } cha_gain @0x98;
+ 
+reg {
+    desc="ChB Gain";
+    default sw = rw;
+    default hw = r;
+    field {} data[16] = 32763;
+  } chb_gain @0x9C;
+ 
+ reg {
+    desc="ChC Gain";
+    default sw = rw;
+    default hw = r;
+    field {} data[16] = 32764;
+  } chc_gain @0xA0;
+ 
+ reg {
+    desc="ChD Gain";
+    default sw = rw;
+    default hw = r;
+    field {} data[16] = 32765;
+  } chd_gain @0xA4;
+ 
+reg {
+    desc="X position offset";
+    default sw = rw;
+    default hw = r;
+    field {} data[32];
+  } xpos_offset @0xA8;
+ 
+ reg {
+    desc="Y position offset";
+    default sw = rw;
+    default hw = r;
+    field {} data[32];
+  } ypos_offset @0xAC;
+  
+reg {
+    desc="TbT Gate Delay";
+    default sw = rw;
+    default hw = r;
+    field {} data[9];
+  } gate_delay @0xB0;
+ 
+ 
+ reg {
+    desc="TbT Gate Width";
+    default sw = rw;
+    default hw = r;
+    field {} data[9];
+  } gate_width @0xB4;
+   
+ 
+ reg {
+    desc="Trigger Source:  0=evr, 1=int";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } clk_trigsrc @0xB8;
+ 
+ 
+reg {
+    desc="EVR Reset";
+    default sw = rw;
+    default hw = r;
+    field {} data[1] = 0;
+  } evr_reset @0xBC;
+  
+ 
+ 
+ 
+ /* 10Hz Position Registers */
+ 
+ reg {
+    desc="SA Counter";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_cnt @0xC0;
+
+reg {
+    desc="SA ChA magnitude";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_cha @0xC4;
+  
+reg {
+    desc="SA ChB magnitude";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_chb @0xC8;
+  
+reg {
+    desc="SA ChC magnitude";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_chc @0xCC;    
+
+reg {
+    desc="SA ChD magnitude";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_chd @0xD0;
+
+reg {
+    desc="SA X position";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_xpos @0xD4;
+
+reg {
+    desc="SA Y position";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_ypos @0xD8;
+
+reg {
+    desc="SA Sum";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } sa_sum @0xDC;
+
+
+
+/*  DMA Registers */
+reg {
+    desc="DMA Soft Trigger";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } dma_soft_trig @0x100;
+
+
+reg {
+    desc="DMA FIFO reset";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } dma_fifo_rst @0x104;
+
+
+reg {
+    desc="DMA ADC Enable";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } dma_adc_enb @0x108;
+
+reg {
+    desc="DMA ADC Length";
+    default sw = rw;
+    default hw = r;
+    field {} data[32] = 100000;
+  } dma_adc_len @0x10C;
+
+reg {
+    desc="DMA TBT Enable";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } dma_tbt_enb @0x110;
+
+reg {
+    desc="DMA TBT Length";
+    default sw = rw;
+    default hw = r;
+    field {} data[32] = 100000;
+  } dma_tbt_len @0x114;
+
+
+reg {
+    desc="DMA FA Enable";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } dma_fa_enb @0x118;
+
+reg {
+    desc="DMA FA Length";
+    default sw = rw;
+    default hw = r;
+    field {} data[32] = 5000;
+  } dma_fa_len @0x11C;
+
+
+reg {
+    desc="DMA Test Data Enb";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } dma_testdata_enb @0x120;
+  
+ reg {
+    desc="DMA Trigger Source:  0=evr, 1=soft";
+    default sw = rw;
+    default hw = r;
+    field {} data[1] = 1;
+  } dma_trigsrc @0x124;
+ 
+reg {
+    desc="DMA Trig Count";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } dma_trigcnt @0x128;
+   
+reg {
+    desc="DMA Status: bit4=adc_active, bit3=tbt_active, bit2=fa_active, bit1=dma_done, bit0=dma_running";
+    default sw = r;
+    default hw = w;
+    field {} data[5];
+  } dma_status @0x12C;
+
+
+ reg {
+    desc="FP LED outputs";
+    default sw = rw;
+    default hw = r;
+    field {} val[8];
+  } FP_LEDS @0x140;
+
+
+
+
+/* EVR Registers */
+ reg {
+    desc="Timestamp (ns)";
+    default sw = r;
+    default hw = w;
+    field {} val[32];
+  } ts_ns @0x150;
+
+reg {
+    desc="Timestamp (s)";
+    default sw = r;
+    default hw = w;
+    field {} val[32];
+  } ts_s @0x154;
+  
+reg {
+    desc="DMA Trigger Timestamp (ns)";
+    default sw = r;
+    default hw = w;
+    field {} val[32];
+  } dma_ts_ns @0x158;
+
+reg {
+    desc="DMA Trigger Timestamp (s)";
+    default sw = r;
+    default hw = w;
+    field {} val[32];
+  } dma_ts_s @0x15C;  
+
+reg {
+    desc="DMA Trigger Event Number";
+    default sw = rw;
+    default hw = r;
+    field {} val[8];
+  } dma_trig_eventno @0x160;  
+
+reg {
+    desc="DMA Trigger Delay";
+    default sw = rw;
+    default hw = r;
+    field {} val[32];
+  } dma_trig_delay @0x164;  
+
+ reg {
+    desc="Internal clock mode (tbt,fa,sa trig source) (0=int counters, 1=evr)";
+    default sw = rw;
+    default hw = r;
+    field {} val[1];
+  } event_src_sel @0x168;  
+ 
+ 
+ 
+/* ADC FIFO Readout Registers */
+reg {
+    desc="ADC FIFO Readout Enable";
+    default sw = rw;
+    default hw = r;
+    default swmod=true; 
+    field {} data[1];
+  } adcfifo_streamenb @0x200;
+     
+reg {
+    desc="ADC FIFO Reset";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } adcfifo_reset @0x204;
+   
+reg {
+    desc="ADC FIFO Data Out";
+    default sw = r;
+    default hw = w;
+    default swacc=true;   
+    field {} data[32];
+  } adcfifo_data @0x208;
+   
+reg {
+    desc="ADC FIFO Word Count";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } adcfifo_rdcnt @0x20C;
+   
+
+/* TBT FIFO Readout Registers */
+reg {
+    desc="TBT FIFO Readout Enable";
+    default sw = rw;
+    default hw = r;
+    default swmod=true; 
+    field {} data[1];
+  } tbtfifo_streamenb @0x210;
+     
+reg {
+    desc="TBT FIFO Reset";
+    default sw = rw;
+    default hw = r;
+    field {} data[1];
+  } tbtfifo_reset @0x214;
+   
+reg {
+    desc="TBT FIFO Data Out";
+    default sw = r;
+    default hw = w;
+    default swacc=true;   
+    field {} data[32];
+  } tbtfifo_data @0x218;
+   
+reg {
+    desc="TBT FIFO Word Count";
+    default sw = r;
+    default hw = w;
+    field {} data[32];
+  } tbtfifo_rdcnt @0x21C;
+   
+
+
+
+
+
+
+
+
+
+};
