@@ -17,13 +17,14 @@ proc setSources {} {
   variable Sources 
   #lappend Sources {"../hdl/top_tb.sv" "SystemVerilog"} 
   
-  #lappend Sources {"../hdl/top.vhd" "VHDL 2008"} 
- 
+  lappend Sources {"../hdl/top.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/xbpm_package.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/ps_io.vhd" "VHDL 2008"} 
   #lappend Sources {"../hdl/evr/evr_top.vhd" "VHDL 2008"}  
   #lappend Sources {"../hdl/evr/EventReceiverChannel.v" "Verilog"}  
   #lappend Sources {"../hdl/evr/timeofDayReceiver.v" "Verilog"} 
 
-  #lappend Sources {"../cstr/pins.xdc"  "XDC"}
+  lappend Sources {"../cstr/pins.xdc"  "XDC"}
   #lappend Sources {"../cstr/afepins.xdc"  "XDC"}
   #lappend Sources {"../cstr/gth.xdc"  "XDC"}   
   #lappend Sources {"../cstr/timing.xdc"  "XDC"} 
@@ -37,7 +38,7 @@ proc setAddressSpace {} {
    ::fwfwk::printCBM "In ./hw/src/main.tcl setAddressSpace()..."
   variable AddressSpace
   
-  #addAddressSpace AddressSpace "pl_regs"   RDL  {} ../rdl/pl_regs.rdl
+  addAddressSpace AddressSpace "pl_regs"   RDL  {} ../rdl/pl_regs.rdl
 
 }
 
@@ -49,14 +50,14 @@ proc doOnCreate {} {
 
       
   ::fwfwk::printCBM "In ./hw/src/main.tcl doOnCreate()"
-  set_property part             xczu6eg-ffvb1156-1-e         [current_project]
+  set_property part             xc7z030sbg485-1              [current_project]
   set_property target_language  VHDL                         [current_project]
   set_property default_lib      xil_defaultlib               [current_project]
    
   #set_property used_in_synthesis false [get_files /home/mead/rfbpm/fwk/zubpm/src/hw/hdl/top_tb.sv] 
   #set_property used_in_implementation false [get_files  top_tb.v] 
    
-  #source ${TclPath}/system.tcl
+  source ${TclPath}/system.tcl
   #source ${TclPath}/adc_fco_phaseshift.tcl
   #source ${TclPath}/adcbuf_fifo.tcl
   #source ${TclPath}/tbtbuf_fifo.tcl 
