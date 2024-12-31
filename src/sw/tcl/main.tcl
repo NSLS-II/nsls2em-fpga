@@ -8,19 +8,9 @@ proc setSources {} {
   # path relative to tcl file
   #lappend Sources {../inc "includes"}
   lappend Sources {../src "sources"}
+  lappend Sources {../lscript.ld "linker-script"}
   ::fwfwk::printInfo "Finished adding sources..."
-  #lappend Sources {../../common/inc "includes"}
-  #lappend Sources {../../common/src "sources"}
 
-  # add libraries
-  #lappend Sources {../../lib/i2c "includes"}
-  #lappend Sources {../../lib/i2c "sources"}
-  #lappend Sources {../../lib/spi "includes"}
-  #lappend Sources {../../lib/spi "sources"}
-  #lappend Sources {../../lib/gpiops "includes"}
-  #lappend Sources {../../lib/gpiops "sources"}
-  #lappend Sources {../../lib/sysmon "includes"}
-  #lappend Sources {../../lib/sysmon "sources"}
 }
 
 proc customizeFsblBsp {} {
@@ -63,20 +53,20 @@ proc customizeAppBsp {} {
 proc doOnCreate {} {
   #variable Config
   #variable Sources
-  #addSources Sources
+  addSources Sources
   fwfwk::printInfo "doOnCreate in src/sw/main.tcl - Adding LWIP 211"
 
   #domain active {app_domain}
   #bsp setlib xilpm 
-  #bsp config total_heap_size "1048576"
-  #bsp config minimal_stack_size "1024"
-  #bsp config max_task_name_len "32"
+  bsp config total_heap_size "1048576"
+  bsp config minimal_stack_size "1024"
+  bsp config max_task_name_len "32"
 
-  #bsp setlib -name lwip211
-  #bsp config api_mode "SOCKET_API"
-  #bsp write
-  #bsp reload
-  #bsp regenerate
+  bsp setlib -name lwip211
+  bsp config api_mode "SOCKET_API"
+  bsp write
+  bsp reload
+  bsp regenerate
   #if {[info exists ::fwfwk::ConsoleUart]} {
   #  fwfwk::printInfo "ConsoleUart = ${::fwfwk::ConsoleUart}"
   #  set Config(ConsoleUart) [string toupper ${::fwfwk::ConsoleUart}]
