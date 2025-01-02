@@ -242,13 +242,18 @@ int main()
 
     u32 ts_s, ts_ns;
     float temp1, temp2;
+    u32 i;
 
 	xil_printf("NSLS2 Electrometer ...\r\n");
     print_firmware_version();
 
 	init_i2c();
 
-
+    for (i=0;i<20;i++) {
+    	xil_printf("Writing FPLED : %d\r\n",i);
+    	Xil_Out32(XPAR_M_AXI_BASEADDR + FP_LEDS_REG, i);
+        sleep(1);
+    }
 
 
     //read AFE temperature from i2c bus

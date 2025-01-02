@@ -18,18 +18,34 @@ proc setSources {} {
   #lappend Sources {"../hdl/top_tb.sv" "SystemVerilog"} 
   
   lappend Sources {"../hdl/top.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/fofb_top.vhd" "VHDL 2008"} 
   lappend Sources {"../hdl/xbpm_package.vhd" "VHDL 2008"} 
   lappend Sources {"../hdl/ps_io.vhd" "VHDL 2008"} 
-  #lappend Sources {"../hdl/evr/evr_top.vhd" "VHDL 2008"}  
-  #lappend Sources {"../hdl/evr/EventReceiverChannel.v" "Verilog"}  
-  #lappend Sources {"../hdl/evr/timeofDayReceiver.v" "Verilog"} 
+  lappend Sources {"../hdl/ltc2378.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/trig_cntrl.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/clk_cntrl.vhd" "VHDL 2008"}   
+  lappend Sources {"../hdl/calcpos.vhd" "VHDL 2008"}
+
+  lappend Sources {"../hdl/ad5060_spi.vhd" "VHDL 2008"}     
+  lappend Sources {"../hdl/ad5754_spi.vhd" "VHDL 2008"}  
+  lappend Sources {"../hdl/ada4350_spi.vhd" "VHDL 2008"}         
+  lappend Sources {"../hdl/fan_i2c.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/ivt_i2c_cntrl.vhd" "VHDL 2008"} 
+  lappend Sources {"../hdl/ltc2986_spi.vhd" "VHDL 2008"}     
+  lappend Sources {"../hdl/stream_fa_data.vhd" "VHDL 2008"}        
+  lappend Sources {"../hdl/stream_rcvd_fa_data.vhd" "VHDL 2008"}  
+  lappend Sources {"../hdl/stretch.vhd" "VHDL 2008"} 
+  
+  lappend Sources {"../hdl/evr_top.vhd" "VHDL 2008"}  
+  lappend Sources {"../hdl/EventReceiverChannel.v" "Verilog"}  
+  lappend Sources {"../hdl/timeofDayReceiver.v" "Verilog"} 
+  lappend Sources {"../hdl/local_data_crc.v" "Verilog"} 
 
   lappend Sources {"../cstr/pins.xdc"  "XDC"}
-  #lappend Sources {"../cstr/afepins.xdc"  "XDC"}
-  #lappend Sources {"../cstr/gth.xdc"  "XDC"}   
-  #lappend Sources {"../cstr/timing.xdc"  "XDC"} 
-  #lappend Sources {"../cstr/debug.xdc"  "XDC"} 
-  
+  lappend Sources {"../cstr/gtx.xdc"  "XDC"}
+  lappend Sources {"../cstr/timing.xdc"  "XDC"}   
+
+
   
 }
 
@@ -41,7 +57,7 @@ proc setAddressSpace {} {
   addAddressSpace AddressSpace "pl_regs"   RDL  {} ../rdl/pl_regs.rdl
 
 }
-
+ 
 
 # ==============================================================================
 proc doOnCreate {} {
@@ -58,12 +74,13 @@ proc doOnCreate {} {
   #set_property used_in_implementation false [get_files  top_tb.v] 
    
   source ${TclPath}/system.tcl
-  #source ${TclPath}/adc_fco_phaseshift.tcl
-  #source ${TclPath}/adcbuf_fifo.tcl
-  #source ${TclPath}/tbtbuf_fifo.tcl 
-  #source ${TclPath}/adcdata_fifo.tcl 
-  #source ${TclPath}/div_gen.tcl
-  #source ${TclPath}/evr_gth.tcl
+  source ${TclPath}/div_gen.tcl
+  source ${TclPath}/div_gen_mag.tcl
+  source ${TclPath}/dds_simadc.tcl 
+  source ${TclPath}/fa_fifo.tcl 
+  source ${TclPath}/fa_rcvd_fifo.tcl
+  source ${TclPath}/evr_gtx.tcl
+  source ${TclPath}/fofb_gtx.tcl
 
   addSources "Sources" 
   

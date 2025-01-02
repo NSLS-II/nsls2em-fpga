@@ -46,45 +46,38 @@ generic(
     fixed_io_ps_porb        : inout std_logic;
     fixed_io_ps_srstb       : inout std_logic;
     
-
     adc_sck                 : out std_logic_vector(NUM_ADCS-1 downto 0);
     adc_cnv                 : out std_logic_vector(NUM_ADCS-1 downto 0);
     adc_busy                : in std_logic_vector(NUM_ADCS-1 downto 0);
-    adc_sdo                 : in std_logic_vector(NUM_ADCS-1 downto 0);
-    
+    adc_sdo                 : in std_logic_vector(NUM_ADCS-1 downto 0); 
     afe_lat                 : out std_logic_vector(3 downto 0);
     afe_cs                  : out std_logic_vector(3 downto 0);
     afe_sck                 : out std_logic_vector(3 downto 0);
     afe_sdi                 : out std_logic_vector(3 downto 0);
-
     afe_gain                : out std_logic_vector(7 downto 0);
           
-   
     -- Bias DAC (AD5060)
     biasdac_sclk             : out std_logic;
     biasdac_din              : out std_logic;
     biasdac_sync             : out std_logic;   
-     
-     
+         
     --sfp I/O
     sfp_sck                 : inout std_logic_vector(1 downto 0);
     sfp_sda                 : inout std_logic_vector(1 downto 0);
-    
-    
+       
      -- FOFB transceiver
---    gtx_fofb_refclk_p        : in std_logic;
---    gtx_fofb_refclk_n        : in std_logic;
---    gtx_fofb_rx_p            : in std_logic;
---    gtx_fofb_rx_n            : in std_logic;
---    gtx_fofb_tx_p            : out std_logic;
---    gtx_fofb_tx_n            : out std_logic;   
-    
-    
---    -- Embedded Event Receiver
---    gtx_evr_refclk_p        : in std_logic;
---    gtx_evr_refclk_n        : in std_logic;
---    gtx_evr_rx_p            : in std_logic;
---    gtx_evr_rx_n            : in std_logic;
+    gtx_fofb_refclk_p        : in std_logic;
+    gtx_fofb_refclk_n        : in std_logic;
+    gtx_fofb_rx_p            : in std_logic;
+    gtx_fofb_rx_n            : in std_logic;
+    gtx_fofb_tx_p            : out std_logic;
+    gtx_fofb_tx_n            : out std_logic;   
+       
+    -- Embedded Event Receiver
+    gtx_evr_refclk_p        : in std_logic;
+    gtx_evr_refclk_n        : in std_logic;
+    gtx_evr_rx_p            : in std_logic;
+    gtx_evr_rx_n            : in std_logic;
     
     -- Motor Control DAC (AD5754)
     fdbkdac_syncn           : out std_logic;
@@ -340,298 +333,298 @@ adc_testmode_enb <= adc_testmode(0);
 adc_testmode_rst <= adc_testmode(1); 
 
 
-----gtx refclk for EVR
---evr_refclk : IBUFDS_GTE2  
---  port map (
---    O => gtx_evr_refclk, 
---    ODIV2 => open,
---    CEB => 	'0',
---    I => gtx_evr_refclk_p,
---    IB => gtx_evr_refclk_n
---);
+--gtx refclk for EVR
+evr_refclk : IBUFDS_GTE2  
+  port map (
+    O => gtx_evr_refclk, 
+    ODIV2 => open,
+    CEB => 	'0',
+    I => gtx_evr_refclk_p,
+    IB => gtx_evr_refclk_n
+);
 
-----gtx refclk for FOFB
---fofb_refclk : IBUFDS_GTE2  
---  port map (
---    O => gtx_fofb_refclk, 
---    ODIV2 => open,
---    CEB => 	'0',
---    I => gtx_fofb_refclk_p,
---    IB => gtx_fofb_refclk_n
---);
-
-
-
---gen_fegain: for i in 0 to 3 generate
---begin
---fegain: entity work.ada4350_spi 
---  port map (
---    clk => sys_clk,                     
---    reset => sys_rst,                      
---    we => afe_cntrl_we,
---    wrdata => afe_cntrl_data(i*8+3 downto i*8),
---    sclk => afe_sck(i),                    
---    sdin => afe_sdi(i), 
---    cs => afe_cs(i), 
---    lat => afe_lat(i)           
---  );    
---end generate;
+--gtx refclk for FOFB
+fofb_refclk : IBUFDS_GTE2  
+  port map (
+    O => gtx_fofb_refclk, 
+    ODIV2 => open,
+    CEB => 	'0',
+    I => gtx_fofb_refclk_p,
+    IB => gtx_fofb_refclk_n
+);
 
 
 
---gen_adcs : for i in 0 to NUM_ADCS-1 generate
---begin
---readadc : entity work.ltc2378 
---  generic map (
---    SIM_MODE => SIM_MODE)
---  port map(
---    clk	=> sys_clk, 
---    adc_clk => mach_clk, 
---    reset => sys_rst, 
---	testmode_enb => adc_testmode_enb,
---	testmode_rst => adc_testmode_rst,    
---	adc_sdo => adc_sdo(i), 
---	adc_busy => adc_busy(i), 
---	adc_cnv => adc_cnv(i), 
---	adc_sck => adc_sck(i), 
---	adc_sdi => open,
---	adc_data => adc_raw(i), 
---    adc_data_valid => adc_data_valid(i) 
---);
---end generate;
+gen_fegain: for i in 0 to 3 generate
+begin
+fegain: entity work.ada4350_spi 
+  port map (
+    clk => pl_clk0,                     
+    reset => pl_reset,                      
+    we => afe_cntrl_we,
+    wrdata => afe_cntrl_data(i*8+3 downto i*8),
+    sclk => afe_sck(i),                    
+    sdin => afe_sdi(i), 
+    cs => afe_cs(i), 
+    lat => afe_lat(i)           
+  );    
+end generate;
 
 
 
-----embedded event receiver
---evr: entity work.evr_top 
---  port map(
---    sys_clk => sys_clk,
---    sys_rst => sys_rst,
---    gtx_reset => gtx_rst,
---    gtx_refclk => gtx_evr_refclk, 
---    rx_p => gtx_evr_rx_p,
---    rx_n => gtx_evr_rx_n,
---    trignum => evr_trignum,  
---    trigdly => (x"00000001"),   
---    tbt_trig => evr_tbt_trig, 
---    fa_trig => evr_fa_trig, 
---    sa_trig => evr_sa_trig, 
---    usr_trig => evr_usr_trig, 
---    gps_trig => evr_gps_trig, 
---    timestamp => evr_timestamp,  
---    evr_rcvd_clk => evr_rcvd_clk,
---    dbg => evr_dbg  
---);	
-
-----fofb gtx interface
---fofb: entity work.fofb_top 
---  port map(
---    sys_clk => sys_clk, 
---    sys_rst => sys_rst, 
---    gtx_reset => gtx_rst,
---    gtx_refclk => gtx_evr_refclk, 	 -- 125 MHz reference clock
---    fa_data => fa_data, 
---    tx_p => gtx_fofb_tx_p, 
---    tx_n => gtx_fofb_tx_n, 
---    rx_p => gtx_fofb_rx_p, 
---    rx_n => gtx_fofb_rx_n, 
---    fofb_rcvd_clk => fofb_rcvd_clk, 
---    fofb_rcvd_data => fofb_rcvd_data, 
---    fofb_rcvd_val => fofb_rcvd_val,    
---    fofb_txactive => fofb_txactive,
---    fofb_txusr_clk => fofb_txusr_clk  
---);
-
-
---stream_rcvd_fa:  entity work.stream_rcvd_fa_data
---  port map(
---    sys_clk => sys_clk, 
---    fa_rcvd_clk =>  fofb_rcvd_clk, 
---    reset => sys_rst, 
---    fa_data => fofb_rcvd_data,
---    fa_data_val => fofb_rcvd_val, 
---    fa_data_enb =>  fa_rcvd_data_enb, 
---    fa_data_fiforst => fa_rcvd_data_fiforst, 
---	fifo_rdstr => fa_rcvd_data_rdstr, 
---	fifo_dout => fa_rcvd_data_dout, 
---	fifo_rdcnt => fa_rcvd_data_rdcnt    
---);
+gen_adcs : for i in 0 to NUM_ADCS-1 generate
+begin
+readadc : entity work.ltc2378 
+  generic map (
+    SIM_MODE => SIM_MODE)
+  port map(
+    clk	=> pl_clk0, 
+    adc_clk => mach_clk, 
+    reset => pl_reset, 
+	testmode_enb => adc_testmode_enb,
+	testmode_rst => adc_testmode_rst,    
+	adc_sdo => adc_sdo(i), 
+	adc_busy => adc_busy(i), 
+	adc_cnv => adc_cnv(i), 
+	adc_sck => adc_sck(i), 
+	adc_sdi => open,
+	adc_data => adc_raw(i), 
+    adc_data_valid => adc_data_valid(i) 
+);
+end generate;
 
 
 
+--embedded event receiver
+evr: entity work.evr_top 
+  port map(
+    sys_clk => pl_clk0,
+    sys_rst => pl_reset,
+    gtx_reset => gtx_rst,
+    gtx_refclk => gtx_evr_refclk, 
+    rx_p => gtx_evr_rx_p,
+    rx_n => gtx_evr_rx_n,
+    trignum => evr_trignum,  
+    trigdly => (x"00000001"),   
+    tbt_trig => evr_tbt_trig, 
+    fa_trig => evr_fa_trig, 
+    sa_trig => evr_sa_trig, 
+    usr_trig => evr_usr_trig, 
+    gps_trig => evr_gps_trig, 
+    timestamp => evr_timestamp,  
+    evr_rcvd_clk => evr_rcvd_clk,
+    dbg => evr_dbg  
+);	
 
---clk_logic:  entity work.clk_cntrl
---  port map(
---    clk => sys_clk,
---    reset => sys_rst, 
---    mach_clk_sel => mach_clk_sel,
---    machclk_divide => machclk_divide,
---    fa_divide => fa_divide, 
---    sa_divide => sa_divide,     
---    evr_tbtclk => evr_tbt_trig,
---    evr_fatrig => evr_fa_trig,
---    evr_satrig => evr_sa_trig,
---    mach_clk => mach_clk,
---    fa_trig => fa_trig,
---    sa_trig => sa_trig
---);
-
-
---trig_logic : entity work.trig_cntrl
---  port map(
---    clk => sys_clk,
---    reset => sys_rst,
---    mach_clk_sel => mach_clk_sel,     
---    trig_clear => trig_clear,    
---    soft_trig => soft_trig,
---    evr_trig => evr_usr_trig,
---    evr_timestamp => evr_timestamp, 
---    evr_timestamplat => evr_timestamplat,
---    trig_status => trig_status,
---    trig_active => trig_active
--- );
-
-
---fa_poscalc: entity work.calcpos
---  generic map (
---    SIM_MODE => SIM_MODE)
---  port map(
---     sys_clk => sys_clk,
---     mach_clk => mach_clk, 
---     reset => sys_rst, 
---     pos_params => pos_params,
---     trig => fa_trig,
---     divide => fa_divide,   
---     adc_raw => adc_raw,
---     data => fa_data    
---    );
+--fofb gtx interface
+fofb: entity work.fofb_top 
+  port map(
+    sys_clk => pl_clk0, 
+    sys_rst => pl_reset, 
+    gtx_reset => gtx_rst,
+    gtx_refclk => gtx_evr_refclk, 	 -- 125 MHz reference clock
+    fa_data => fa_data, 
+    tx_p => gtx_fofb_tx_p, 
+    tx_n => gtx_fofb_tx_n, 
+    rx_p => gtx_fofb_rx_p, 
+    rx_n => gtx_fofb_rx_n, 
+    fofb_rcvd_clk => fofb_rcvd_clk, 
+    fofb_rcvd_data => fofb_rcvd_data, 
+    fofb_rcvd_val => fofb_rcvd_val,    
+    fofb_txactive => fofb_txactive,
+    fofb_txusr_clk => fofb_txusr_clk  
+);
 
 
---stream_fa : entity work.stream_fa_data
---  port map(
---    mach_clk => mach_clk, 
---    sys_clk => sys_clk, 
---    reset => sys_rst,   
---    fa_data => fa_data, 
---    testmode => fa_data_tmode, 
---    fa_data_enb => trig_active, 
---    fa_data_fiforst => fa_data_fiforst,
---    adc_raw => adc_raw,
---	evr_timestamp => evr_timestamp,	 
---	fifo_rdstr => fa_data_rdstr, 
---	fifo_dout => fa_data_dout, 
---	fifo_rdcnt => fa_data_rdcnt	 	    
---);
+stream_rcvd_fa:  entity work.stream_rcvd_fa_data
+  port map(
+    sys_clk => pl_clk0, 
+    fa_rcvd_clk =>  fofb_rcvd_clk, 
+    reset => pl_reset, 
+    fa_data => fofb_rcvd_data,
+    fa_data_val => fofb_rcvd_val, 
+    fa_data_enb =>  fa_rcvd_data_enb, 
+    fa_data_fiforst => fa_rcvd_data_fiforst, 
+	fifo_rdstr => fa_rcvd_data_rdstr, 
+	fifo_dout => fa_rcvd_data_dout, 
+	fifo_rdcnt => fa_rcvd_data_rdcnt    
+);
 
 
 
 
---sa_poscalc: entity work.calcpos
---  generic map (
---    SIM_MODE => SIM_MODE)
---  port map(
---     sys_clk => sys_clk,
---     mach_clk => mach_clk, 
---     reset => sys_rst, 
---     pos_params => pos_params,
---     trig => sa_trig,
---     divide => sa_divide,   
---     adc_raw => adc_raw,
---     data => sa_data    
---    );
+clk_logic:  entity work.clk_cntrl
+  port map(
+    clk => pl_clk0, 
+    reset => pl_reset,  
+    mach_clk_sel => mach_clk_sel,
+    machclk_divide => machclk_divide,
+    fa_divide => fa_divide, 
+    sa_divide => sa_divide,     
+    evr_tbtclk => evr_tbt_trig,
+    evr_fatrig => evr_fa_trig,
+    evr_satrig => evr_sa_trig,
+    mach_clk => mach_clk,
+    fa_trig => fa_trig,
+    sa_trig => sa_trig
+);
+
+
+trig_logic : entity work.trig_cntrl
+  port map(
+    clk => pl_clk0, 
+    reset => pl_reset, 
+    mach_clk_sel => mach_clk_sel,     
+    trig_clear => trig_clear,    
+    soft_trig => soft_trig,
+    evr_trig => evr_usr_trig,
+    evr_timestamp => evr_timestamp, 
+    evr_timestamplat => evr_timestamplat,
+    trig_status => trig_status,
+    trig_active => trig_active
+ );
+
+
+fa_poscalc: entity work.calcpos
+  generic map (
+    SIM_MODE => SIM_MODE)
+  port map(
+     sys_clk => pl_clk0, 
+     mach_clk => mach_clk, 
+     reset => pl_reset,  
+     pos_params => pos_params,
+     trig => fa_trig,
+     divide => fa_divide,   
+     adc_raw => adc_raw,
+     data => fa_data    
+    );
+
+
+stream_fa : entity work.stream_fa_data
+  port map(
+    mach_clk => mach_clk, 
+    sys_clk => pl_clk0, 
+    reset => pl_reset,   
+    fa_data => fa_data, 
+    testmode => fa_data_tmode, 
+    fa_data_enb => trig_active, 
+    fa_data_fiforst => fa_data_fiforst,
+    adc_raw => adc_raw,
+	evr_timestamp => evr_timestamp,	 
+	fifo_rdstr => fa_data_rdstr, 
+	fifo_dout => fa_data_dout, 
+	fifo_rdcnt => fa_data_rdcnt	 	    
+);
 
 
 
---bias_cntrl : entity work.ad5060_spi  
---  port map(
---    clk => sys_clk,                     
---    reset => sys_rst,                     
---    we => biasdac_we,
---    wrdata => biasdac_data,
---    sclk => biasdac_sclk,                    
---    din => biasdac_din,
---    sync => biasdac_sync                 
---);   
 
-
---fdbk_cntrl :  entity work.ad5754_spi
---  port map (
---    clk => sys_clk,                     
---    reset => sys_rst,                      
---    we => fdbkdac_we, 
---    wrdata => fdbkdac_data, 
---    opmode => fdbkdac_opmode,
---    ldac_ps => fdbkdac_ldac_ps,
---    adc_raw => adc_raw,
---    adc_data_valid => adc_data_valid(0),
---    sclk => fdbkdac_sclk,                    
---    din => fdbkdac_sdin, 
---    sync => fdbkdac_syncn,
---    ldac => fdbkdac_ldacn,
---    clrn => fdbkdac_clrn,
---    bin2s => fdbkdac_bin2s                  
--- );    
-
-
---heat_cntrl :  entity work.ad5754_spi
---  port map (
---    clk => sys_clk,                     
---    reset => sys_rst,                      
---    we => heatdac_we, 
---    wrdata => heatdac_data, 
---    opmode => '0', 
---    ldac_ps => heatdac_ldac_ps,
---    adc_raw => adc_raw,
---    adc_data_valid => adc_data_valid(0),
---    sclk => heatdac_sclk,                    
---    din => heatdac_sdin, 
---    sync => heatdac_syncn,
---    ldac => heatdac_ldacn,
---    clrn => heatdac_clrn,
---    bin2s => heatdac_bin2s                  
--- );    
-
-
---therm_rdbk: entity work.ltc2986_spi 
---  port map (
---    clk => sys_clk,                     
---    reset => sys_rst,                      
---    we => therm_we, 
---    wrdata => therm_wrdata,
---    rddata => therm_rddata, 
---    csn => therm_csn, 
---    sck => therm_sclk,                    
---    sdi => therm_sdi, 
---    sdo => therm_sdo,
---    rstn => therm_rstn             
---  );    
+sa_poscalc: entity work.calcpos
+  generic map (
+    SIM_MODE => SIM_MODE)
+  port map(
+     sys_clk => pl_clk0,
+     mach_clk => mach_clk, 
+     reset => pl_reset, 
+     pos_params => pos_params,
+     trig => sa_trig,
+     divide => sa_divide,   
+     adc_raw => adc_raw,
+     data => sa_data    
+    );
 
 
 
---fan_ctrl: entity work.fan_i2c 
---  port map ( 
---    clk => sys_clk, 
---    reset => sys_rst, 
---    tach => fan_tach, 
---    scl => fan_i2c_scl, 
---    sda => fan_i2c_sda, 
---    speed => fan_setspeed,
---    OCF => fan_status(0), 
---    THE => fan_status(1), 
---    i2c_good => fan_status(2), 
---    tach_count => fan_tachcnt
---);
+bias_cntrl : entity work.ad5060_spi  
+  port map(
+    clk => pl_clk0,                     
+    reset => pl_reset,                     
+    we => biasdac_we,
+    wrdata => biasdac_data,
+    sclk => biasdac_sclk,                    
+    din => biasdac_din,
+    sync => biasdac_sync                 
+);   
+
+
+fdbk_cntrl :  entity work.ad5754_spi
+  port map (
+    clk => pl_clk0,                     
+    reset => pl_reset,                      
+    we => fdbkdac_we, 
+    wrdata => fdbkdac_data, 
+    opmode => fdbkdac_opmode,
+    ldac_ps => fdbkdac_ldac_ps,
+    adc_raw => adc_raw,
+    adc_data_valid => adc_data_valid(0),
+    sclk => fdbkdac_sclk,                    
+    din => fdbkdac_sdin, 
+    sync => fdbkdac_syncn,
+    ldac => fdbkdac_ldacn,
+    clrn => fdbkdac_clrn,
+    bin2s => fdbkdac_bin2s                  
+ );    
+
+
+heat_cntrl :  entity work.ad5754_spi
+  port map (
+    clk => pl_clk0,                     
+    reset => pl_reset,                      
+    we => heatdac_we, 
+    wrdata => heatdac_data, 
+    opmode => '0', 
+    ldac_ps => heatdac_ldac_ps,
+    adc_raw => adc_raw,
+    adc_data_valid => adc_data_valid(0),
+    sclk => heatdac_sclk,                    
+    din => heatdac_sdin, 
+    sync => heatdac_syncn,
+    ldac => heatdac_ldacn,
+    clrn => heatdac_clrn,
+    bin2s => heatdac_bin2s                  
+ );    
+
+
+therm_rdbk: entity work.ltc2986_spi 
+  port map (
+    clk => pl_clk0,                     
+    reset => pl_reset,                      
+    we => therm_we, 
+    wrdata => therm_wrdata,
+    rddata => therm_rddata, 
+    csn => therm_csn, 
+    sck => therm_sclk,                    
+    sdi => therm_sdi, 
+    sdo => therm_sdo,
+    rstn => therm_rstn             
+  );    
 
 
 
---ivt_i2c : entity work.qafe_monitors
---  port map(
---	clock => sys_clk,  
---	reset => sys_rst, 
---	scl => ivt_i2c_scl, 
---	sda => ivt_i2c_sda,
---	registers => ivt_regs  
---);    
+fan_ctrl: entity work.fan_i2c 
+  port map ( 
+    clk => pl_clk0, 
+    reset => pl_reset, 
+    tach => fan_tach, 
+    scl => fan_i2c_scl, 
+    sda => fan_i2c_sda, 
+    speed => fan_setspeed,
+    OCF => fan_status(0), 
+    THE => fan_status(1), 
+    i2c_good => fan_status(2), 
+    tach_count => fan_tachcnt
+);
+
+
+
+ivt_i2c : entity work.qafe_monitors
+  port map(
+	clock => pl_clk0,  
+	reset => pl_reset, 
+	scl => ivt_i2c_scl, 
+	sda => ivt_i2c_sda,
+	registers => ivt_regs  
+);    
 
 
 
@@ -859,34 +852,34 @@ sys: component system
 --end generate;
 
 
---stretch_1 : entity work.stretch
---  port map (
---	clk => sys_clk,
---	reset => sys_rst, 
---	sig_in => sa_trig, 
---	len => 1000000, -- ~25ms;
---	sig_out => sa_trig_stretch
---);	  	
+stretch_1 : entity work.stretch
+  port map (
+	clk => pl_clk0,
+	reset => pl_reset, 
+	sig_in => sa_trig, 
+	len => 1000000, -- ~25ms;
+	sig_out => sa_trig_stretch
+);	  	
 
 
---stretch_2 : entity work.stretch
---  port map (
---	clk  => sys_clk,
---	reset => sys_rst, 
---	sig_in => evr_gps_trig, 
---	len => 1000000, -- ~25ms;
---	sig_out => evr_gps_trig_stretch
---);	  	 
+stretch_2 : entity work.stretch
+  port map (
+	clk  => pl_clk0,
+	reset => pl_reset, 
+	sig_in => evr_gps_trig, 
+	len => 1000000, -- ~25ms;
+	sig_out => evr_gps_trig_stretch
+);	  	 
  
  
---stretch_3 : entity work.stretch
---  port map (
---    clk => sys_clk,
---    reset => sys_rst, 
---    sig_in => evr_usr_trig, 
---    len => 1000000, -- ~25ms;
---    sig_out => evr_usrtrig_stretch
--- );           
+stretch_3 : entity work.stretch
+  port map (
+    clk => pl_clk0,
+    reset => pl_reset, 
+    sig_in => evr_usr_trig, 
+    len => 1000000, -- ~25ms;
+    sig_out => evr_usrtrig_stretch
+ );           
  
     
     
