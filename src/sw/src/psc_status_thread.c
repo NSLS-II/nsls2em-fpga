@@ -178,32 +178,17 @@ void ReadGenRegs(char *msg) {
     status.chb_gain = Xil_In32(XPAR_M_AXI_BASEADDR + CHB_GAIN_REG);
     status.chc_gain = Xil_In32(XPAR_M_AXI_BASEADDR + CHC_GAIN_REG);
     status.chd_gain = Xil_In32(XPAR_M_AXI_BASEADDR + CHD_GAIN_REG);
-    status.pll_locked = Xil_In32(XPAR_M_AXI_BASEADDR + PLL_LOCKED_REG);
+
     status.kx = Xil_In32(XPAR_M_AXI_BASEADDR + KX_REG);
     status.ky = Xil_In32(XPAR_M_AXI_BASEADDR + KY_REG);
-    status.bba_xoff = Xil_In32(XPAR_M_AXI_BASEADDR + BBA_XOFF_REG);
-    status.bba_yoff = Xil_In32(XPAR_M_AXI_BASEADDR + BBA_YOFF_REG);
-    status.rf_atten = Xil_In32(XPAR_M_AXI_BASEADDR + RF_DSA_REG) / 4;
-    status.coarse_trig_dly = Xil_In32(XPAR_M_AXI_BASEADDR + COARSE_TRIG_DLY_REG);
-    //status.fine_trig_dly = Xil_In32(XPAR_M_AXI_BASEADDR + FINE_TRIG_DLY_REG);
 
-    status.trig_dmacnt = Xil_In32(XPAR_M_AXI_BASEADDR + DMA_TRIGCNT_REG);
-    status.dma_adclen = Xil_In32(XPAR_M_AXI_BASEADDR + DMA_ADCBURSTLEN_REG);
-    status.dma_tbtlen = Xil_In32(XPAR_M_AXI_BASEADDR + DMA_TBTBURSTLEN_REG);
-    status.dma_falen = Xil_In32(XPAR_M_AXI_BASEADDR + DMA_FABURSTLEN_REG);
 
-    status.trig_eventno = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_DMA_TRIGNUM_REG);
+
+    status.trig_eventno = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TRIGNUM_REG);
     status.evr_ts_s_triglat = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_S_LAT_REG);
     status.evr_ts_ns_triglat = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_NS_LAT_REG);
     //status.trigtobeam_thresh = Xil_In32(XPAR_M_AXI_BASEADDR + TRIGTOBEAM_THRESH_REG);
     //status.trigtobeam_dly = Xil_In32(XPAR_M_AXI_BASEADDR + TRIGTOBEAM_DLY_REG);
-
-    dmastatus = Xil_In32(XPAR_M_AXI_BASEADDR + DMA_STATUS_REG);
-    status.dma_adc_active = (dmastatus & 0x10) >> 4;
-    status.dma_tbt_active = (dmastatus & 0x8) >> 3;
-    status.dma_fa_active = (dmastatus & 0x4) >> 2;
-    status.dma_tx_active = (dmastatus & 0x2) >> 1;
-    //xil_printf("DMA Status :  %x:   %d   %d   %d\r\n",dmastatus,status.dma_adc_active,status.dma_tbt_active,status.dma_fa_active);
 
     //xil_printf("Trig TS_S: %d\r\n",status.evr_ts_s_triglat);
     //xil_printf("Trig TS_NS: %d\r\n",status.evr_ts_ns_triglat);
@@ -237,10 +222,10 @@ void ReadPosRegs(char *msg) {
     SAdata.count     = Xil_In32(XPAR_M_AXI_BASEADDR + SA_TRIGNUM_REG);
     SAdata.evr_ts_s  = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_S_REG);
     SAdata.evr_ts_ns = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_NS_REG);
-    SAdata.cha_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHA_REG);
-    SAdata.chb_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHB_REG);
-    SAdata.chc_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHC_REG);
-    SAdata.chd_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHD_REG);
+    SAdata.cha_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHAMAG_REG);
+    SAdata.chb_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHBMAG_REG);
+    SAdata.chc_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHCMAG_REG);
+    SAdata.chd_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHDMAG_REG);
     SAdata.sum       = Xil_In32(XPAR_M_AXI_BASEADDR + SA_SUM_REG);
     SAdata.xpos_nm   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_XPOS_REG);
     SAdata.ypos_nm   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_YPOS_REG);

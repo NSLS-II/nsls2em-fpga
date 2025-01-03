@@ -241,7 +241,7 @@ int main()
 {
 
     u32 ts_s, ts_ns;
-    float temp1, temp2;
+    float temp0, temp1, vin, iin;
     u32 i;
 
 	xil_printf("NSLS2 Electrometer ...\r\n");
@@ -249,36 +249,26 @@ int main()
 
 	init_i2c();
 
-    for (i=0;i<20;i++) {
-    	xil_printf("Writing FPLED : %d\r\n",i);
-    	Xil_Out32(XPAR_M_AXI_BASEADDR + FP_LEDS_REG, i);
-        sleep(1);
-    }
 
-
-    //read AFE temperature from i2c bus
-    i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x40);
-    temp1 = read_i2c_temp(BRDTEMP0_ADDR);
-    temp2 = read_i2c_temp(BRDTEMP2_ADDR);
-    printf("AFE:  = %5.3f  %5.3f  \r\n",temp1,temp2);
-
+    //read Temperature and Power
+	for (i=0;i<10;i++) {
+	  temp0 = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE0_REG) / 128;
+	  temp1 = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE1_REG) / 128;
+	  vin = (float) Xil_In32(XPAR_M_AXI_BASEADDR + PWR_VIN_REG) * 0.00125;
+	  iin = (float) Xil_In32(XPAR_M_AXI_BASEADDR + PWR_IIN_REG) * 0.1;
+      printf("%5.3f   %5.3f   %5.3f   %5.3f \r\n",temp0,temp1,vin,iin);
+      sleep(1);
+	}
 
 	//EVR reset
-	Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RST_REG, 1);
-	Xil_Out32(XPAR_M_AXI_BASEADDR + EVR_RST_REG, 2);
+	Xil_Out32(XPAR_M_AXI_BASEADDR + GTX_RESET_REG, 1);
+	Xil_Out32(XPAR_M_AXI_BASEADDR + GTX_RESET_REG, 2);
     usleep(1000);
 
     //read Timestamp
     ts_s = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_S_REG);
     ts_ns = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_NS_REG);
     xil_printf("ts= %d    %d\r\n",ts_s,ts_ns);
-
-
-
-    // TODO:  This doesn't work
-    //xil_printf("System is about to reset...\n");
-    // Perform the system reset
-    //XPm_ResetAssert(XILPM_RESET_SOFT,XILPM_RESET_ACTION_PULSE);
 
 
 	main_thread_handle = sys_thread_new("main_thread", main_thread, 0, THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);

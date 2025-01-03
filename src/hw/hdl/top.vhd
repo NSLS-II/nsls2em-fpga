@@ -20,7 +20,7 @@ use xil_defaultlib.xbpm_package.ALL;
 
 entity top is
 generic(
-    FPGA_VERSION			: integer := 12;
+    FPGA_VERSION			: integer := 14;
     SIM_MODE				: integer := 0
     );
   port (
@@ -129,112 +129,80 @@ end top;
 
 architecture behv of top is
 
-
-
-
-   signal pl_clk0           : std_logic;
-   signal fpga_clk          : std_logic;
-   signal mach_clk          : std_logic;   
-   signal gtx_evr_refclk    : std_logic;
-   signal gtx_fofb_refclk   : std_logic;
-   signal pl_resetn         : std_logic;
-   signal pl_reset          : std_logic;
-   signal gtx_rst           : std_logic_vector(7 downto 0);
+   signal pl_clk0               : std_logic;
+   signal fpga_clk              : std_logic;
+   signal mach_clk              : std_logic;   
+   signal gtx_evr_refclk        : std_logic;
+   signal gtx_fofb_refclk       : std_logic;
+   signal pl_resetn             : std_logic;
+   signal pl_reset              : std_logic;
+   signal gtx_rst               : std_logic_vector(7 downto 0);
    
-   signal m_axi4_m2s        : t_pl_regs_m2s;
-   signal m_axi4_s2m        : t_pl_regs_s2m;
+   signal m_axi4_m2s            : t_pl_regs_m2s;
+   signal m_axi4_s2m            : t_pl_regs_s2m;
    
-   signal ps_leds           : std_logic_vector(7 downto 0);
-
-   signal iobus_addr        : std_logic_vector(15 downto 0);
-   signal iobus_cs          : std_logic;
-   signal iobus_rnw         : std_logic;
-   signal iobus_rddata      : std_logic_vector(31 downto 0);
-   signal iobus_wrdata      : std_logic_vector(31 downto 0);
-   
-   signal fifobus_addr       : std_logic_vector(15 downto 0);
-   signal fifobus_cs         : std_logic;
-   signal fifobus_rnw        : std_logic;
-   signal fifobus_rddata     : std_logic_vector(31 downto 0);
-   signal fifobus_wrdata     : std_logic_vector(31 downto 0);  
+   signal ps_leds               : std_logic_vector(3 downto 0);
       
+   signal soft_trig             : std_logic;
+
+   signal adc_testmode_enb      : std_logic;
+   signal adc_testmode_rst      : std_logic;
+   signal adc_data_valid        : std_logic_vector(NUM_ADCS-1 downto 0);  
+   signal adc_raw               : adc_raw_type; 
+
+   signal ivt_regs              : ivt_regs_type;
    
-   signal iobus_leds        : std_logic_vector(31 downto 0);
-        
-   signal soft_trig        : std_logic;
-  
-   signal adc_testmode      : std_logic_vector(7 downto 0);
-   signal adc_testmode_enb  : std_logic;
-   signal adc_testmode_rst  : std_logic;
-   signal adc_data_valid    : std_logic_vector(NUM_ADCS-1 downto 0);
-   
-   signal adc_raw           : ADC_RAW_TYPE;
-   signal adc_raw_se        : ADC_AVE_TYPE;
-   signal adc_ave           : ADC_AVE_TYPE;   
-   
-   signal ivt_regs          : IVT_REGS_TYPE;
-   
-   signal sa_data          : data_type;
-   signal sa_trignum       : std_logic_vector(31 downto 0);     
-   signal sa_cnt           : std_logic_vector(31 downto 0);
-   signal sa_divide        : std_logic_vector(31 downto 0);
-   signal sa_irqenb        : std_logic;
-   signal sa_irq           : std_logic;  
-   signal sa_trig          : std_logic; 
+   signal sa_data               : data_type;
+   signal sa_trignum            : std_logic_vector(31 downto 0);     
+   signal sa_cnt                : std_logic_vector(31 downto 0);
+   signal sa_divide             : std_logic_vector(31 downto 0);
+   signal sa_irqenb             : std_logic;
+   signal sa_irq                : std_logic;  
+   signal sa_trig               : std_logic; 
      
-   signal fa_data          : data_type;
-   signal fa_data_tmode    : std_logic;
-   signal fa_data_rdstr    : std_logic;
-   signal fa_data_dout     : std_logic_vector(31 downto 0);
-   signal fa_data_rdcnt    : std_logic_vector(31 downto 0);
-   signal fa_data_fiforst  : std_logic;
-   signal fa_divide        : std_logic_vector(31 downto 0);   
-   signal fa_trig          : std_logic;
-   
+   signal fa_data               : data_type;
+   signal fa_divide             : std_logic_vector(31 downto 0);   
+   signal fa_trig               : std_logic;
+    
+   signal fa_data_rdstr         : std_logic;
+   signal fa_data_dout          : std_logic_vector(31 downto 0);
+   signal fa_data_rdcnt         : std_logic_vector(31 downto 0);
+   signal fa_data_fiforst       : std_logic;
+
    signal fa_rcvd_data_enb      : std_logic;
-   signal fa_rcvd_data_tmode    : std_logic;
    signal fa_rcvd_data_rdstr    : std_logic;
    signal fa_rcvd_data_dout     : std_logic_vector(31 downto 0);
    signal fa_rcvd_data_rdcnt    : std_logic_vector(31 downto 0);
    signal fa_rcvd_data_fiforst  : std_logic;
-   
-   signal other_irq        : std_logic;
-   signal iobus_dbg        : std_logic_vector(31 downto 0);
-  
 
-   signal biasdac_data     : std_logic_vector(31 downto 0);
-   signal biasdac_we       : std_logic;
+   signal biasdac_data          : std_logic_vector(31 downto 0);
+   signal biasdac_we            : std_logic;
 
-   signal fdbkdac_data     : std_logic_vector(31 downto 0);
-   signal fdbkdac_we       : std_logic;
-   signal fdbkdac_opmode   : std_logic;
-   signal fdbkdac_ldac_ps  : std_logic;
+   signal fdbkdac_data          : std_logic_vector(31 downto 0);
+   signal fdbkdac_we            : std_logic;
+   signal fdbkdac_opmode        : std_logic;
+   signal fdbkdac_ldac_ps       : std_logic;
 
-   signal heatdac_data     : std_logic_vector(31 downto 0);
-   signal heatdac_we       : std_logic;
-   signal heatdac_ldac_ps  : std_logic;
+   signal heatdac_data          : std_logic_vector(31 downto 0);
+   signal heatdac_we            : std_logic;
+   signal heatdac_ldac_ps       : std_logic;
    
-   signal therm_wrdata     : std_logic_vector(31 downto 0);
-   signal therm_we         : std_logic;
-   signal therm_rddata     : std_logic_vector(7 downto 0);
+   signal therm_wrdata          : std_logic_vector(31 downto 0);
+   signal therm_we              : std_logic;
+   signal therm_rddata          : std_logic_vector(7 downto 0);
    
-   signal pos_params       : pos_params_type;
+   signal pos_params            : pos_params_type;
    
-   signal sa_trig_stretch    : std_logic;
-   signal evr_gps_trig_stretch : std_logic;
-   signal evr_usrtrig_stretch : std_logic;
+   signal sa_trig_stretch       : std_logic;
+   signal evr_gps_trig_stretch  : std_logic;
+   signal evr_usrtrig_stretch   : std_logic;
    
-   signal ext_tbtclk        : std_logic;
-   signal mach_clk_sel      : std_logic_vector(1 downto 0);
-   signal clk_cnt           : unsigned(7 downto 0);
-   
+   signal mach_clk_sel          : std_logic;
    signal machclk_divide        : std_logic_vector(7 downto 0);
  
    signal trig_clear            : std_logic;
    signal trig_status           : std_logic_vector(1 downto 0);
    signal trig_active           : std_logic;
-   
-
 
    signal evr_dbg               : std_logic_vector(19 downto 0);
    signal evr_tbt_trig          : std_logic;
@@ -256,7 +224,6 @@ architecture behv of top is
    signal fofb_txusr_clk        : std_logic;
    signal fofb_txactive         : std_logic;
    
-
    signal afe_sck_i             : std_logic;
    signal afe_sdi_i             : std_logic;
    signal afe_cs_i              : std_logic;
@@ -277,21 +244,9 @@ architecture behv of top is
    attribute mark_debug of adc_cnv     : signal is "true";
    attribute mark_debug of adc_sck     : signal is "true";
    attribute mark_debug of adc_busy    : signal is "true";
-   attribute mark_debug of adc_sdo     : signal is "true";  
-    
+   attribute mark_debug of adc_sdo     : signal is "true";      
    attribute mark_debug of adc_raw     : signal is "true";   
-    
    attribute mark_debug of mach_clk   : signal is "true";    
-     
-   attribute mark_debug of iobus_addr: signal is "true";
-   attribute mark_debug of iobus_cs: signal is "true";  
-   attribute mark_debug of iobus_rnw: signal is "true";
-   attribute mark_debug of iobus_wrdata: signal is "true";
-   attribute mark_debug of iobus_rddata: signal is "true";
-   
-   attribute mark_debug of fan_setspeed: signal is "true";
-   attribute mark_debug of fan_tachcnt: signal is "true";
-   attribute mark_debug of fan_status: signal is "true";
    
    attribute mark_debug of afe_sck: signal is "true";
    attribute mark_debug of afe_sdi: signal is "true";
@@ -304,33 +259,26 @@ begin
 
 
 dbg(0) <= mach_clk; 
-dbg(1) <= fa_trig; --gpio_out(1); --fdbkdac_sclk; 
-dbg(2) <= fofb_txactive; --sa_trig; --gpio_out(2); --fdbkdac_sdin; 
-dbg(3) <= fa_data.data_rdy; --gpio_out(0);  --fdbkdac_sdo; 
+dbg(1) <= fa_trig; 
+dbg(2) <= fofb_txactive; 
+dbg(3) <= fa_data.data_rdy; 
 dbg(4) <= pl_clk0; 
-dbg(5) <= fofb_txusr_clk; --evr_gps_trig; 
-dbg(6) <= fdbkdac_sclk; --evr_rcvd_clk; 
+dbg(5) <= fofb_txusr_clk; 
+dbg(6) <= fdbkdac_sclk; 
 dbg(7) <= evr_fa_trig;  
-dbg(8) <= iobus_cs; --fofb_rcvd_clk; --evr_sa_trig; 
+dbg(8) <= evr_sa_trig; 
 
---fp_leds(0) <= trig_active;      --upper right LED
---fp_leds(1) <= iobus_leds(1);    --bottom right LED
---fp_leds(2) <= sa_trig_stretch;  --upper left LED
---fp_leds(3) <= evr_gps_trig_stretch; --iobus_leds(0);    --bottom left LED
-fp_leds <= ps_leds(3 downto 0);
+fp_leds(0) <= ps_leds(0);  
+fp_leds(1) <= trig_active;    
+fp_leds(2) <= sa_trig_stretch;  
+fp_leds(3) <= evr_gps_trig_stretch;    
 
 pl_reset <= not pl_resetn; 
 
-
-
 -- generate interrupt
 sa_irq <= sa_trig when (sa_irqenb = '1') else '0';
-other_irq <= sa_irq;
 
 
-
-adc_testmode_enb <= adc_testmode(0); 
-adc_testmode_rst <= adc_testmode(1); 
 
 
 --gtx refclk for EVR
@@ -435,7 +383,6 @@ fofb: entity work.fofb_top
     fofb_txusr_clk => fofb_txusr_clk  
 );
 
-
 stream_rcvd_fa:  entity work.stream_rcvd_fa_data
   port map(
     sys_clk => pl_clk0, 
@@ -449,6 +396,7 @@ stream_rcvd_fa:  entity work.stream_rcvd_fa_data
 	fifo_dout => fa_rcvd_data_dout, 
 	fifo_rdcnt => fa_rcvd_data_rdcnt    
 );
+
 
 
 
@@ -506,7 +454,6 @@ stream_fa : entity work.stream_fa_data
     sys_clk => pl_clk0, 
     reset => pl_reset,   
     fa_data => fa_data, 
-    testmode => fa_data_tmode, 
     fa_data_enb => trig_active, 
     fa_data_fiforst => fa_data_fiforst,
     adc_raw => adc_raw,
@@ -515,8 +462,6 @@ stream_fa : entity work.stream_fa_data
 	fifo_dout => fa_data_dout, 
 	fifo_rdcnt => fa_data_rdcnt	 	    
 );
-
-
 
 
 sa_poscalc: entity work.calcpos
@@ -532,7 +477,6 @@ sa_poscalc: entity work.calcpos
      adc_raw => adc_raw,
      data => sa_data    
     );
-
 
 
 bias_cntrl : entity work.ad5060_spi  
@@ -627,115 +571,69 @@ ivt_i2c : entity work.qafe_monitors
 );    
 
 
-
---iobus_io : entity work.iobus_interface 
---  generic map (
---    FPGA_VERSION => FPGA_VERSION
---    )
---  port map ( 
---	clk => sys_clk,
---    rst => sys_rst, 	 
---    addr => iobus_addr,
---    cs => iobus_cs, 
---    rnw => iobus_rnw, 
---    wrdata => iobus_wrdata, 
---    rddata => iobus_rddata, 			  
---    machclk_divide => machclk_divide,            		
---  	fa_divide => fa_divide,
---  	sa_divide => sa_divide, 
---  	sa_irqenb => sa_irqenb, 	    
---	adc_testmode => adc_testmode, 
---	biasdac_data => biasdac_data, 
---    biasdac_we => biasdac_we, 		
--- 	fdbkdac_data => fdbkdac_data, 
---    fdbkdac_we => fdbkdac_we,                
---    fdbkdac_ldac => fdbkdac_ldac_ps, 
---    fdbkdac_opmode => fdbkdac_opmode,    
---	heatdac_data => heatdac_data, 
---    heatdac_we => heatdac_we,                
---    heatdac_ldac => heatdac_ldac_ps,     
---    therm_wrdata => therm_wrdata, 
---	therm_we => therm_we, 
---	therm_rddata => therm_rddata,  
---	adc_raw => adc_raw,
---	sa_data => sa_data,                   
---    sa_trignum => sa_trignum,       
---	afe_cntrl_data => afe_cntrl_data,
---	afe_cntrl_we => afe_cntrl_we,	
---	afe_gain => afe_gain,
---	leds => iobus_leds,
---	mach_clk_sel => mach_clk_sel,	
---	evr_timestamp => evr_timestamp,
---	evr_timestamplat => evr_timestamplat,
---	evr_trignum => evr_trignum,
---	evr_trigdly => evr_trigdly,
---	gtx_rst => gtx_rst,	
---	gpio_in => gpio_in,
---	gpio_out => gpio_out,	
---	pos_params => pos_params,
---	fan_setspeed => fan_setspeed,
---	fan_tachcnt => fan_tachcnt,
---	fan_status => fan_status,
---	ivt_regs => ivt_regs
---);
-
-
-
---fifobus_io : entity work.fifobus_interface 
---  generic map (
---    FPGA_VERSION => FPGA_VERSION)
---  port map ( 
---	clk	=> sys_clk,
---    rst	=> sys_rst, 	 
---    addr => fifobus_addr,
---    cs => fifobus_cs, 
---    rnw	=> fifobus_rnw, 
---    wrdata => fifobus_wrdata, 
---    rddata => fifobus_rddata, 			  
---	soft_trig => soft_trig,
---	trig_status => trig_status,
---	trig_clear => trig_clear,  
---    fa_rcvd_data_tmode => fa_rcvd_data_tmode, 
---    fa_rcvd_data_enb => fa_rcvd_data_enb,  
---   	fa_rcvd_data_fiforst => fa_rcvd_data_fiforst,     
---    fa_rcvd_data_rdstr => fa_rcvd_data_rdstr, 
---    fa_rcvd_data_dout => fa_rcvd_data_dout, 
---    fa_rcvd_data_rdcnt => fa_rcvd_data_rdcnt,	        	 	    
---    fa_data_tmode => fa_data_tmode,   
---   	fa_data_fiforst => fa_data_fiforst,     
---    fa_data_rdstr => fa_data_rdstr, 
---    fa_data_dout => fa_data_dout, 
---    fa_data_rdcnt => fa_data_rdcnt
---);
-
- 
-
 ps_pl: entity work.ps_io
+  generic map (
+    FPGA_VERSION => FPGA_VERSION
+    )
   port map (
     pl_clock => pl_clk0, 
     pl_reset => pl_reset, 
     m_axi4_m2s => m_axi4_m2s, 
     m_axi4_s2m => m_axi4_s2m, 
-    fp_leds => ps_leds
---    adc_data => adc_data,
---    sa_data => sa_data,
---    reg_o_tbt => reg_o_tbt,
---    reg_o_adc => reg_o_adc,
---    reg_i_adc => reg_i_adc,
---    reg_o_therm => reg_o_therm,
---    reg_i_therm => reg_i_therm,    
---    reg_o_adcfifo => reg_o_adcfifo, 
---	reg_i_adcfifo => reg_i_adcfifo,
---	reg_o_tbtfifo => reg_o_tbtfifo, 
---	reg_i_tbtfifo => reg_i_tbtfifo,
---	reg_o_dma => reg_o_dma,
---	reg_i_dma => reg_i_dma,
---	reg_o_dsa => reg_o_dsa,
---	reg_o_pll => reg_o_pll,
---	reg_i_pll => reg_i_pll,
---	reg_o_evr => reg_o_evr, 
---	reg_i_evr => reg_i_evr
-          
+ 	gpio_in => gpio_in,
+	gpio_out => gpio_out,   
+	adc_testmode_enb => adc_testmode_enb,
+	adc_testmode_rst => adc_testmode_rst, 
+	ps_leds => ps_leds,
+  	sa_divide => sa_divide, 
+    sa_irqenb => sa_irqenb, 
+    fa_divide => fa_divide,
+	mach_clk_sel => mach_clk_sel,
+	machclk_divide => machclk_divide,		
+	fan_setspeed => fan_setspeed,
+	fan_tachcnt => fan_tachcnt,
+	fan_status => fan_status,
+    sa_data => sa_data,
+    sa_trignum => sa_trignum,       
+	afe_cntrl_data => afe_cntrl_data,
+	afe_cntrl_we => afe_cntrl_we,	
+	afe_gain => afe_gain,
+	gtx_rst => gtx_rst,	
+	pos_params => pos_params,	 
+	biasdac_data => biasdac_data, 
+    biasdac_we => biasdac_we, 
+	adc_raw => adc_raw,
+ 	evr_timestamp => evr_timestamp,
+	evr_timestamplat => evr_timestamplat,           		
+	evr_trignum => evr_trignum,
+	evr_trigdly => evr_trigdly,	
+ 	fdbkdac_data => fdbkdac_data, 
+    fdbkdac_we => fdbkdac_we,                
+    fdbkdac_ldac => fdbkdac_ldac_ps, 
+    fdbkdac_opmode => fdbkdac_opmode,    
+	heatdac_data => heatdac_data, 
+    heatdac_we => heatdac_we,                
+    heatdac_ldac => heatdac_ldac_ps,     
+    therm_wrdata => therm_wrdata, 
+	therm_we => therm_we, 
+	therm_rddata => therm_rddata,  
+	ivt_regs => ivt_regs,
+	            
+	soft_trig => soft_trig,
+	trig_status => trig_status,
+	trig_clear => trig_clear,  
+	
+    fa_rcvd_data_enb => fa_rcvd_data_enb,  
+   	fa_rcvd_data_fiforst => fa_rcvd_data_fiforst,     
+    fa_rcvd_data_rdstr => fa_rcvd_data_rdstr, 
+    fa_rcvd_data_dout => fa_rcvd_data_dout, 
+    fa_rcvd_data_rdcnt => fa_rcvd_data_rdcnt,
+    	        	 	     
+   	fa_data_fiforst => fa_data_fiforst,     
+    fa_data_rdstr => fa_data_rdstr, 
+    fa_data_dout => fa_data_dout, 
+    fa_data_rdcnt => fa_data_rdcnt
+	            
   );
 
  
@@ -766,9 +664,9 @@ sys: component system
     fixed_io_ps_clk => fixed_io_ps_clk,
     fixed_io_ps_porb => fixed_io_ps_porb,
     fixed_io_ps_srstb => fixed_io_ps_srstb,
+
     pl_clk0 => pl_clk0,
     pl_resetn => pl_resetn,  
-    
     m_axi_araddr => m_axi4_m2s.araddr, 
     m_axi_arprot => m_axi4_m2s.arprot,
     m_axi_arready => m_axi4_s2m.arready,
@@ -791,65 +689,6 @@ sys: component system
   );
 
 
-
---system_i: component system
---  port map (
---    ddr_addr(14 downto 0) => ddr_addr(14 downto 0),
---    ddr_ba(2 downto 0) => ddr_ba(2 downto 0),
---    ddr_cas_n => ddr_cas_n,
---    ddr_ck_n => ddr_ck_n,
---    ddr_ck_p => ddr_ck_p,
---    ddr_cke => ddr_cke,
---    ddr_cs_n => ddr_cs_n,
---    ddr_dm(3 downto 0) => ddr_dm(3 downto 0),
---    ddr_dq(31 downto 0) => ddr_dq(31 downto 0),
---    ddr_dqs_n(3 downto 0) => ddr_dqs_n(3 downto 0),
---    ddr_dqs_p(3 downto 0) => ddr_dqs_p(3 downto 0),
---    ddr_odt => ddr_odt,
---    ddr_ras_n => ddr_ras_n,
---    ddr_reset_n => ddr_reset_n,
---    ddr_we_n  => ddr_we_n,
---    fixed_io_ddr_vrn => fixed_io_ddr_vrn,
---    fixed_io_ddr_vrp => fixed_io_ddr_vrp,
---    fixed_io_mio(53 downto 0) => fixed_io_mio(53 downto 0),
---    fixed_io_ps_clk => fixed_io_ps_clk,
---    fixed_io_ps_porb => fixed_io_ps_porb,
---    fixed_io_ps_srstb => fixed_io_ps_srstb,
---    sys_clk => sys_clk,
---    sys_rst => sys_rstb,
---    iobus_addr(15 downto 0) => iobus_addr(15 downto 0),      
---    iobus_cs => iobus_cs,
---    iobus_data_pl2ps(31 downto 0) => iobus_rddata(31 downto 0),
---    iobus_data_ps2pl(31 downto 0) => iobus_wrdata(31 downto 0),
---    iobus_rnw => iobus_rnw,
---    fifobus_addr(15 downto 0) => fifobus_addr(15 downto 0),      
---    fifobus_cs => fifobus_cs,
---    fifobus_data_pl2ps(31 downto 0) => fifobus_rddata(31 downto 0),
---    fifobus_data_ps2pl(31 downto 0) => fifobus_wrdata(31 downto 0),
---    fifobus_rnw => fifobus_rnw,       
---    tenhz_irq => sa_irq,
---    other_irq => other_irq   
---    );
---end generate;
-   
-    
---gen_sim: if (SIM_MODE = 1) generate  
---sim_system_i: entity work.sim_system
---  port map (
---    sys_clk => sys_clk,    
---    sys_rstb => sys_rstb,
---    iobus_addr => iobus_addr,
---    iobus_cs => iobus_cs,
---    iobus_rnw => iobus_rnw,
---    iobus_wrdata => iobus_wrdata,
---    iobus_rddata => iobus_rddata,
---    fifobus_addr => fifobus_addr,
---    fifobus_cs => fifobus_cs,
---    fifobus_rnw => fifobus_rnw,
---    fifobus_wrdata => fifobus_wrdata,
---    fifobus_rddata => fifobus_rddata         
--- );    
---end generate;
 
 
 stretch_1 : entity work.stretch

@@ -1,120 +1,106 @@
 
-//base address of AXI-DMA Core for ADC Data
-#define AXIDMA_ADCBASEADDR  0xA0010000
-//base address of AXI-DMA Core for ADC Data
-#define AXIDMA_TBTBASEADDR  0xA0020000
-//base address of AXI-DMA Core for ADC Data
-#define AXIDMA_FABASEADDR  0xA0030000
-
-
-//base addresses of DMA destination
-#define ADC_DMA_DATA 0x10000000
-#define TBT_DMA_DATA 0x20000000
-#define FA_DMA_DATA  0x30000000
-
-
-//AXI DMA CORE REGISTERS
-#define S2MM_DMACR 0x30 //12
-#define S2MM_DMASR 0x34 //13
-#define S2MM_DA 0x48 //18
-#define S2MM_LEN 0x58 //22
-
 
 //PL AXI4 Bus Registers
 
-#define MOD_ID_NUM 0x0
-#define MOD_ID_VER 0x4
-#define PROJ_ID_NUM 0x10
-#define PROJ_ID_VER 0x14
-#define GIT_SHASUM 0x18
-#define COMPILE_TIMESTAMP 0x1C
+#define GPIO_IN_REG 0x0
+#define GPIO_OUT_REG 0x4
+#define ADC_TESTMODE_REG 0x8
+#define FP_LEDS_REG 0x14
+#define FPGA_VER_REG 0x1C
+#define SA_DIVIDE_REG 0x20
+#define SA_IRQENB_REG 0x24
+#define FA_DIVIDE_REG 0x28
+#define MACHCLK_SEL_REG 0x2C  //0=int, 1=evr
+#define FAN_SETSPEED_REG 0x30
+#define FAN_TACHCNT_REG 0x34
+#define FAN_STATUS_REG 0x38
+#define SA_TRIGNUM_REG 0x40
+#define KX_REG 0x44
+#define KY_REG 0x48
+#define MACHCLK_DIVIDE_REG 0x4C
+#define CHA_OFFSET_REG 0x50
+#define CHB_OFFSET_REG 0x54
+#define CHC_OFFSET_REG 0x58
+#define CHD_OFFSET_REG 0x5C
+#define CHA_GAIN_REG 0x60
+#define CHB_GAIN_REG 0x64
+#define CHC_GAIN_REG 0x68
+#define CHD_GAIN_REG 0x6C
+#define AFE_CNTRL_REG 0x70
+#define AFE_DB_GAIN_REG 0x74
+#define GTX_RESET_REG 0x7C
+#define BIAS_DAC_REG 0x80
+#define XPOS_OFFSET_REG 0x88
+#define YPOS_OFFSET_REG 0x8C
+#define ADCRAW_CHA_REG 0x90
+#define ADCRAW_CHB_REG 0x94
+#define ADCRAW_CHC_REG 0x98
+#define ADCRAW_CHD_REG 0x9C
+#define ADCRAW_CHE_REG 0xA0
+#define ADCRAW_CHF_REG 0xA4
+#define ADCRAW_CHG_REG 0xA8
+#define ADCRAW_CHH_REG 0xAC
+#define SA_CHAMAG_REG 0xB0
+#define SA_CHBMAG_REG 0xB4
+#define SA_CHCMAG_REG 0xB8
+#define SA_CHDMAG_REG 0xBC
+#define SA_SUM_REG 0xC0
+#define SA_XPOS_REG 0xC4
+#define SA_YPOS_REG 0xC8
 
-#define ADC_IDLYWVAL_REG 0x20
-#define ADC_IDLYSTR_REG 0x24
-#define ADC_IDLYCHARVAL_REG 0x28
-#define ADC_IDLYCHBRVAL_REG 0x2C
-#define ADC_IDLYCHCRVAL_REG 0x30
-#define ADC_IDLYCHDRVAL_REG 0x34
-#define ADC_FCOMMCM_REG 0x38
+#define EVR_TS_S_REG 0xD0
+#define EVR_TS_NS_REG 0xD4
+#define EVR_TS_S_LAT_REG 0xD8
+#define EVR_TS_NS_LAT_REG 0xDC
+#define EVR_TRIGDLY_REG 0xE0
+#define EVR_TRIGNUM_REG 0xE4
 
-#define PLL_LOCKED_REG 0x3C
-#define AD9510_REG 0x40
-#define RF_DSA_REG 0x44
-#define ADC_SPI_REG 0x48
+#define SIM_DDS_FREQ_REG 0xF0
+#define SIM_POS_SEL_REG 0xF4  //0=sim use DDS, 1=real
 
-#define ADC_RAWCHA_REG 0x50
-#define ADC_RAWCHB_REG 0x54
-#define ADC_RAWCHC_REG 0x58
-#define ADC_RAWCHD_REG 0x5C
+#define FDBK_DAC_DATA_REG 0x120
+#define FDBK_DAC_LDAC_REG 0x124
+#define FDBK_DAC_OPMODE_REG 0x128
 
-#define THERM_SPI_REG 0x60
-#define THERM_SEL_REG 0x64
+#define HEAT_DAC_DATA_REG 0x130
+#define HEAT_DAC_LDAC_REG 0x134
 
-#define KX_REG 0x90
-#define KY_REG 0x94
-#define CHA_GAIN_REG 0x98
-#define CHB_GAIN_REG 0x9C
-#define CHC_GAIN_REG 0xA0
-#define CHD_GAIN_REG 0xA4
-#define BBA_XOFF_REG 0xA8
-#define BBA_YOFF_REG 0xAC
-#define TBT_GATEDLY_REG 0xB0
-#define TBT_GATEWID_REG 0xB4
+#define THERMISTOR_REG 0x140
 
-#define CLK_TRIG_SRC 0xB8
-#define EVR_RST_REG 0xBC
-
-#define SA_TRIGNUM_REG 0xC0
-#define SA_CHA_REG 0xC4
-#define SA_CHB_REG 0xC8
-#define SA_CHC_REG 0xCC
-#define SA_CHD_REG 0xD0
-#define SA_XPOS_REG 0xD4
-#define SA_YPOS_REG 0xD8
-#define SA_SUM_REG 0xDC
-
-#define DMA_SOFTTRIG_REG 0x100
-#define DMA_FIFORST_REG 0x104
-#define DMA_ADCENABLE_REG 0x108
-#define DMA_ADCBURSTLEN_REG 0x10C
-#define DMA_TBTENABLE_REG 0x110
-#define DMA_TBTBURSTLEN_REG 0x114
-#define DMA_FAENABLE_REG 0x118
-#define DMA_FABURSTLEN_REG 0x11C
-#define DMA_TESTDATENEN_REG 0x120
-#define DMA_TRIGSRC_REG 0x124
-#define DMA_TRIGCNT_REG 0x128
-#define DMA_STATUS_REG 0x12C
-
-#define FP_LEDS_REG 0x140
-
-#define EVR_TS_NS_REG 0x150
-#define EVR_TS_S_REG 0x154
-#define EVR_TS_NS_LAT_REG 0x158
-#define EVR_TS_S_LAT_REG 0x15C
-#define EVR_DMA_TRIGNUM_REG 0x160
-#define COARSE_TRIG_DLY_REG 0x164
-#define EVENT_SRC_SEL_REG 0x168
-
-#define ADCFIFO_STREAMENB_REG 0x200
-#define ADCFIFO_RST_REG 0x204
-#define ADCFIFO_DATA_REG 0x208
-#define ADCFIFO_CNT_REG 0x20C
-
-#define TBTFIFO_STREAMENB_REG 0x210
-#define TBTFIFO_RST_REG 0x214
-#define TBTFIFO_DATA_REG 0x218
-#define TBTFIFO_CNT_REG 0x21C
+#define TEMP_SENSE0_REG 0x150
+#define TEMP_SENSE1_REG 0x154
+#define PWR_VIN_REG 0x158
+#define PWR_IIN_REG 0x15C
 
 
+#define FA_SOFT_TRIG_REG 0x200
+#define FA_TRIG_STAT_REG 0x204
+#define FA_TRIG_CLEAR_REG 0x208
+
+
+#define FA_FIFO_STREAMENB_REG 0x210
+#define FA_FIFO_RST_REG 0x214
+#define FA_FIFO_DATA_REG 0x218
+#define FA_FIFO_CNT_REG 0x21C
+
+#define FA_RCVD_FIFO_STREAMENB_REG 0x220
+#define FA_RCVD_FIFO_RST_REG 0x224
+#define FA_RCVD_FIFO_DATA_REG 0x228
+#define FA_RCVD_FIFO_CNT_REG 0x22C
 
 
 
-//Yet to be added
-#define ADC_FIFOWREN_REG 8
-#define TRIGTOBEAM_DLY_REG 72
-#define TRIGTOBEAM_THRESH_REG 73
-#define FINE_TRIG_DLY_REG 78
+#define MOD_ID_NUM 0x400
+#define MOD_ID_VER 0x404
+#define PROJ_ID_NUM 0x408
+#define PROJ_ID_VER 0x40C
+#define GIT_SHASUM 0x410
+#define COMPILE_TIMESTAMP 0x414
+
+
+
+
+
 
 
 

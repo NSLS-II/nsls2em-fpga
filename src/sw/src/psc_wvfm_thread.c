@@ -57,53 +57,17 @@ void Host2NetworkConvWvfm(char *inbuf, int len) {
 
 
 
-void ReadLiveTbTWvfm(char *msg) {
-
-    int i;
-    u32 *msg_u32ptr;
-
-    //Enable TbT FIFO write
-    Xil_Out32(XPAR_M_AXI_BASEADDR + TBTFIFO_STREAMENB_REG, 1);
-    usleep(30000);
-
-    //printf("Reading TbT FIFO...\n");
-    //regval = Xil_In32(XPAR_M_AXI_BASEADDR + TBTFIFO_CNT_REG);
-    //printf("\tWords in TbT FIFO = %d\n",regval);
-
-    //write the PSC Header
-     msg_u32ptr = (u32 *)msg;
-     msg[0] = 'P';
-     msg[1] = 'S';
-     msg[2] = 0;
-     msg[3] = (short int) MSGID52;
-     *++msg_u32ptr = htonl(MSGID52LEN); //body length
- 	 msg_u32ptr++;
 
 
-    // Get TbT Waveform
-    for (i=0;i<8000*2;i++)
-	   *msg_u32ptr++ = Xil_In32(XPAR_M_AXI_BASEADDR + TBTFIFO_DATA_REG);
-
-    //printf("TbT FIFO Read Complete...\n");
-    //printf("Resetting FIFO...\n");
-    Xil_Out32(XPAR_M_AXI_BASEADDR + TBTFIFO_RST_REG, 1);
-    usleep(1);
-    Xil_Out32(XPAR_M_AXI_BASEADDR + TBTFIFO_RST_REG, 0);
-    usleep(10);
-
-}
-
-
-
-void ReadLiveADCWvfm(char *msg) {
+void ReadFAWvfm(char *msg) {
 
     int i;
     u16 *msg_u16ptr;
     u32 *msg_u32ptr;
     int regval;
 
-    Xil_Out32(XPAR_M_AXI_BASEADDR + ADCFIFO_STREAMENB_REG, 1);
-    Xil_Out32(XPAR_M_AXI_BASEADDR + ADCFIFO_STREAMENB_REG, 0);
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_STREAMENB_REG, 1);
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_STREAMENB_REG, 0);
     usleep(10000);
     //xil_printf("Reading ADC FIFO...\r\n");
     //regval = Xil_In32(XPAR_M_AXI_BASEADDR + ADCFIFO_CNT_REG);
@@ -122,19 +86,19 @@ void ReadLiveADCWvfm(char *msg) {
     msg_u16ptr = (u16 *) &msg[MSGHDRLEN];
     for (i=0;i<8000;i++) {
         //chA and chB are in a single 32 bit word
-    	regval = Xil_In32(XPAR_M_AXI_BASEADDR + ADCFIFO_DATA_REG);
+    	regval = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_DATA_REG);
         *msg_u16ptr++ = (short int) ((regval & 0xFFFF0000) >> 16);
         *msg_u16ptr++ = (short int) (regval & 0xFFFF);
         //chC and chD are in a single 32 bit word
-        regval = Xil_In32(XPAR_M_AXI_BASEADDR + ADCFIFO_DATA_REG);
+        regval = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_DATA_REG);
         *msg_u16ptr++ = (short int) ((regval & 0xFFFF0000) >> 16);
         *msg_u16ptr++ = (short int) (regval & 0xFFFF);
     }
 
     //printf("Resetting FIFO...\n");
-    Xil_Out32(XPAR_M_AXI_BASEADDR + ADCFIFO_RST_REG, 1);
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 1);
     usleep(1);
-    Xil_Out32(XPAR_M_AXI_BASEADDR + ADCFIFO_RST_REG, 0);
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 0);
     usleep(10);
 
 
@@ -202,41 +166,20 @@ reconnect:
 
 		//xil_printf("Wvfm: In main waveform loop...\r\n");
 		loopcnt++;
-		vTaskDelay(pdMS_TO_TICKS(100));
+		vTaskDelay(pdMS_TO_TICKS(1000));
 
-
-
-
-
-        if (loopcnt % 10 == 0) {
-            //xil_printf("Wvfm(%d) Sending Live Data...\r\n",loopcnt);
-        	ReadLiveADCWvfm(msgid51_buf);
-        	//write out Live ADC data (msg51)
-        	Host2NetworkConvWvfm(msgid51_buf,sizeof(msgid51_buf)+MSGHDRLEN);
-        	n = write(newsockfd,msgid51_buf,MSGID51LEN+MSGHDRLEN);
-        	if (n < 0) {
-        		printf("PSC Waveform: ERROR writing MSG 51 - ADC Waveform\n");
-        		close(newsockfd);
-        		goto reconnect;
-        	}
-
-
-        	//xil_printf("%8d:  Reading TbT Waveform...\r\n",loopcnt);
-        	ReadLiveTbTWvfm(msgid52_buf);
-        	//write out Live TbT data (msg52)
-        	Host2NetworkConvWvfm(msgid52_buf,sizeof(msgid52_buf)+MSGHDRLEN);
-        	n = write(newsockfd,msgid52_buf,MSGID52LEN+MSGHDRLEN);
-        	if (n < 0) {
-        		printf("PSC Waveform: ERROR writing MSG 52 - TbT Waveform\n");
-        		close(newsockfd);
-        		goto reconnect;
-        	}
-
+        //xil_printf("Wvfm(%d) Sending Live Data...\r\n",loopcnt);
+        ReadFAWvfm(msgid51_buf);
+        //write out Live ADC data (msg51)
+        Host2NetworkConvWvfm(msgid51_buf,sizeof(msgid51_buf)+MSGHDRLEN);
+        n = write(newsockfd,msgid51_buf,MSGID51LEN+MSGHDRLEN);
+        if (n < 0) {
+        	printf("PSC Waveform: ERROR writing MSG 51 - ADC Waveform\n");
+        	close(newsockfd);
+        	goto reconnect;
         }
 
-
-
-	}
+    }
 
 	/* close connection */
 	close(newsockfd);

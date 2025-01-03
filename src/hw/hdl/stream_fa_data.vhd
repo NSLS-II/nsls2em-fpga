@@ -25,7 +25,6 @@ entity stream_fa_data is
 
      fa_data            : in data_type;
      
-     testmode           : in std_logic;
      fa_data_enb        : in std_logic;
      fa_data_fiforst    : in std_logic;
      

@@ -14,7 +14,7 @@ entity clk_cntrl is
     clk                 : in std_logic;
     reset               : in std_logic;
        
-    mach_clk_sel        : in std_logic_vector(1 downto 0);
+    mach_clk_sel        : in std_logic;
     machclk_divide      : in std_logic_vector(7 downto 0);
     fa_divide           : in std_logic_vector(31 downto 0);
     sa_divide           : in std_logic_vector(31 downto 0);
@@ -54,8 +54,8 @@ begin
 
 --mach_clk_sel  0=ext, 1=int, 2=evr (for ext and int, generate tenhz and tenkhz trig internally,
 --for evr, sa and fa triggiers come from event link)  
-sa_trig  <= evr_satrig  when (mach_clk_sel = "01") else sa_trig_i;  
-fa_trig  <= evr_fatrig  when (mach_clk_sel = "01") else fa_trig_i;  
+sa_trig  <= evr_satrig  when (mach_clk_sel = '1') else sa_trig_i;  
+fa_trig  <= evr_fatrig  when (mach_clk_sel = '1') else fa_trig_i;  
 --sa_trig  <= sa_trig_i;  
 --fa_trig  <= fa_trig_i;  
 
@@ -81,7 +81,7 @@ end process;
 
 --evr_tbtclk doesn't stay high on evr in ring, but works in lab.
 --for now, just use tbtclk from back panel.
-mach_clk_src  <= evr_tbtclk  when (mach_clk_sel = "01") else 
+mach_clk_src  <= evr_tbtclk  when (mach_clk_sel = '1') else 
                  mach_clk_int;
 
 -- keep it internal only for now.

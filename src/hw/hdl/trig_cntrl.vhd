@@ -14,7 +14,7 @@ entity trig_cntrl is
     clk                 : in std_logic;
     reset               : in std_logic;
        
-    mach_clk_sel        : in std_logic_vector(1 downto 0);
+    mach_clk_sel        : in std_logic;
     soft_trig           : in std_logic;
     evr_trig            : in std_logic;
     trig_clear          : in std_logic;
@@ -56,7 +56,7 @@ begin
 
 --can only get evr_trig when mach_clk_sel is set to evr
 -- if sfp is not connected get spurious triggers
-evr_trig_lat_valid <= evr_trig_lat  when (mach_clk_sel = "10") else '0';
+evr_trig_lat_valid <= evr_trig_lat  when (mach_clk_sel = '1') else '0';
 
 
 --psc_tx_wfm polls on these bits to start acquisition
