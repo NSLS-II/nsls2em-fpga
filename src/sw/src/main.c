@@ -242,16 +242,21 @@ int main()
 
     u32 ts_s, ts_ns;
     float temp0, temp1, vin, iin;
-    u32 i;
+    u32 i,j;
+	s32 adc_raw;
+    struct SAdataMsg SAdata;
 
 	xil_printf("NSLS2 Electrometer ...\r\n");
     print_firmware_version();
 
 	init_i2c();
 
+    //set ADC clock source to internal (no EVR)
+	Xil_Out32(XPAR_M_AXI_BASEADDR + MACHCLK_SEL_REG, 0);
+
 
     //read Temperature and Power
-	for (i=0;i<10;i++) {
+	for (i=0;i<4;i++) {
 	  temp0 = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE0_REG) / 128;
 	  temp1 = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE1_REG) / 128;
 	  vin = (float) Xil_In32(XPAR_M_AXI_BASEADDR + PWR_VIN_REG) * 0.00125;
@@ -259,6 +264,36 @@ int main()
       printf("%5.3f   %5.3f   %5.3f   %5.3f \r\n",temp0,temp1,vin,iin);
       sleep(1);
 	}
+
+	// print raw adc values
+	for (i=0;i<20;i++) {
+	    for (j=0;j<8;j++) {
+		  adc_raw = Xil_In32(XPAR_M_AXI_BASEADDR + ADCRAW_CHA_REG + j*4);
+	      xil_printf("%d  ",adc_raw);
+	    }
+	    xil_printf("\r\n");
+	    sleep(1);
+	    }
+
+
+    // print SA data
+    for (i=0;i<20;i++) {
+      SAdata.count     = Xil_In32(XPAR_M_AXI_BASEADDR + SA_TRIGNUM_REG);
+      SAdata.evr_ts_s  = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_S_REG);
+      SAdata.evr_ts_ns = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_NS_REG);
+      SAdata.cha_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHAMAG_REG);
+      SAdata.chb_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHBMAG_REG);
+      SAdata.chc_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHCMAG_REG);
+      SAdata.chd_mag   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_CHDMAG_REG);
+      SAdata.sum       = Xil_In32(XPAR_M_AXI_BASEADDR + SA_SUM_REG);
+      SAdata.xpos_nm   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_XPOS_REG);
+      SAdata.ypos_nm   = Xil_In32(XPAR_M_AXI_BASEADDR + SA_YPOS_REG);
+      xil_printf("%d:  %d  %d  %d  %d  %d  %d  %d  %d  %d\r\n",
+    		SAdata.count,SAdata.evr_ts_s,SAdata.evr_ts_ns,
+			SAdata.cha_mag,SAdata.chb_mag,SAdata.chc_mag,SAdata.chd_mag,
+			SAdata.sum,SAdata.xpos_nm,SAdata.ypos_nm);
+      sleep(1);
+    }
 
 	//EVR reset
 	Xil_Out32(XPAR_M_AXI_BASEADDR + GTX_RESET_REG, 1);

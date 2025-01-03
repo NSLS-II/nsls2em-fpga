@@ -58,37 +58,6 @@ float power(float base, int exponent) {
 
 
 
-void i2c_ltc2977_stats(struct SysHealthMsg *p) {
-
-	const u8 I2C_ADDR = 0x5C;
-	const u8 TEMP_REG = 0x8D;
-	const s32 TXLEN = 1;
-	const s32 RXLEN = 2;
-
-	u8 txBuf[] = {TEMP_REG};
-	u8 rxBuf[] = {0,0};
-	u32 res;
-
-
-	i2c_set_port_expander(I2C_PORTEXP0_ADDR,0);
-	i2c_set_port_expander(I2C_PORTEXP1_ADDR,8);
-
-    // The LTC2977 requires a repeated start i2c transaction
-    while (XIicPs_BusIsBusy(&IicPsInstance)); //Make sure bus is not busy
-    XIicPs_SetOptions(&IicPsInstance, XIICPS_REP_START_OPTION);
-    //write the command address
-
-    XIicPs_MasterSendPolled(&IicPsInstance, txBuf, TXLEN, I2C_ADDR);
-    XIicPs_ClearOptions(&IicPsInstance, XIICPS_REP_START_OPTION);
-    //read the register
-    XIicPs_MasterRecvPolled(&IicPsInstance, rxBuf, RXLEN, I2C_ADDR);
-
-
-
-}
-
-
-
 
 void i2c_sfp_get_stats(struct SysHealthMsg *p, u8 sfp_slot) {
 
@@ -163,7 +132,6 @@ void ReadGenRegs(char *msg) {
 
     u32 *msg_u32ptr;
     struct StatusMsg status;
-    u32 dmastatus;
     //char  *msg_ptr;
 
     //write the PSC header
@@ -246,7 +214,6 @@ void ReadSysInfo(char *msg) {
 
     u32 *msg_u32ptr;
     u8 i;
-    float temp1, temp2;
     struct SysHealthMsg syshealth;
 
     //write the PSC header
@@ -262,51 +229,18 @@ void ReadSysInfo(char *msg) {
     //read FPGA version (git checksum) from PL register
     syshealth.git_shasum = Xil_In32(XPAR_M_AXI_BASEADDR + GIT_SHASUM);
 
-    //read DFE temperature from i2c bus
-    i2c_set_port_expander(I2C_PORTEXP1_ADDR,1);
-    syshealth.dfe_temp[0] = read_i2c_temp(BRDTEMP0_ADDR);
-    syshealth.dfe_temp[1] = read_i2c_temp(BRDTEMP1_ADDR);
-    syshealth.dfe_temp[2] = read_i2c_temp(BRDTEMP2_ADDR);
-    syshealth.dfe_temp[3] = read_i2c_temp(BRDTEMP3_ADDR);
 
-    //read AFE temperature from i2c bus
-    i2c_set_port_expander(I2C_PORTEXP1_ADDR,0x40);
-    syshealth.afe_temp[0] = read_i2c_temp(BRDTEMP0_ADDR);
-    syshealth.afe_temp[1] = read_i2c_temp(BRDTEMP2_ADDR);
+    // read board temps, power V,I
+    syshealth.dfe_temp[0] = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE0_REG) / 128;
+    syshealth.dfe_temp[1] = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE1_REG) / 128;
+    syshealth.pwr_vin = (float) Xil_In32(XPAR_M_AXI_BASEADDR + PWR_VIN_REG) * 0.00125;
+    syshealth.pwr_iin = (float) Xil_In32(XPAR_M_AXI_BASEADDR + PWR_IIN_REG) * 0.1;
 
 
-
-    //read voltage & currents from LTC2991 chips
-	i2c_set_port_expander(I2C_PORTEXP1_ADDR,4);
-	i2c_configure_ltc2991();
-    syshealth.vin_v = i2c_ltc2991_vcc_vin();
-    syshealth.vin_i = i2c_ltc2991_vcc_vin_current();
-    syshealth.v3_3_v = i2c_ltc2991_vcc_3v3();
-    syshealth.v3_3_i = i2c_ltc2991_vcc_3v3_current();
-    syshealth.v2_5_v = i2c_ltc2991_vcc_2v5();
-    syshealth.v2_5_i = i2c_ltc2991_vcc_2v5_current();
-    syshealth.v1_8_v = i2c_ltc2991_vcc_1v8();
-    syshealth.v1_8_i = i2c_ltc2991_vcc_1v8_current();
-    syshealth.v1_2ddr_v = i2c_ltc2991_vcc_1v2_ddr();
-    syshealth.v1_2ddr_i = i2c_ltc2991_vcc_1v2_ddr_current();
-    syshealth.v0_85_v = i2c_ltc2991_vcc_0v85();
-    syshealth.v0_85_i = i2c_ltc2991_vcc_0v85_current();
-    syshealth.v2_5mgt_v = i2c_ltc2991_vcc_mgt_2v5();
-    syshealth.v2_5mgt_i = i2c_ltc2991_vcc_mgt_2v5_current();
-    syshealth.v1_2mgt_v = i2c_ltc2991_vcc_mgt_1v2();
-    syshealth.v1_2mgt_i = i2c_ltc2991_vcc_mgt_1v2_current();
-    syshealth.v0_9mgt_v = i2c_ltc2991_vcc_mgt_0v9();
-    syshealth.v0_9mgt_i =  i2c_ltc2991_vcc_mgt_0v9_current();
-    syshealth.reg_temp[0] = i2c_ltc2991_reg1_temp();
-    syshealth.reg_temp[1] = i2c_ltc2991_reg2_temp();
-    syshealth.reg_temp[2] = i2c_ltc2991_reg3_temp();
 
     // read SFP status information from i2c bus
     for (i=0;i<=5;i++)
        i2c_sfp_get_stats(&syshealth, i);
-
-    // Read power management info from i2c bus
-    i2c_ltc2977_stats(&syshealth);
 
 
     // Read the Uptime counter

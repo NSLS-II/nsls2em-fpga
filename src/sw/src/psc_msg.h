@@ -74,39 +74,20 @@ typedef struct SAdataMsg {
 // PSC Message ID 30
 typedef struct SysHealthMsg {
 	u32   git_shasum;    // PSC Offset 0   Firmware Version (git checksum)
-	float dfe_temp[4];   // PSC Offset 4   ADT7410 Temperature Sensors
-	float afe_temp[2];   // PSC Offset 20
+	float dfe_temp[2];   // PSC Offset 4   ADT7410 Temperature Sensors
+	float pwr_vin;       // PSS Offset 8
+	float pwr_iin;       // PSC Offset 12
     float fpga_dietemp;  // PSC Offset 28
     u32   uptime;        // PSC Offset 32
 	u32   rsvd;          // PSC Offset 36
-    float vin_v;         // PSC Offset 40   LTC2991 monitor
-	float vin_i;         // PSC Offset 44
-	float v3_3_v;        // PSC Offset 48
-	float v3_3_i;		 // PSC Offset 52
-	float v2_5_v;		 // PSC Offset 56
-	float v2_5_i;		 // PSC Offset 60
-	float v1_8_v;		 // PSC Offset 64
-	float v1_8_i;		 // PSC Offset 68
-    float v1_2ddr_v;	 // PSC Offset 72
-    float v1_2ddr_i;	 // PSC Offset 76
-    float v0_85_v;		 // PSC Offset 80
-    float v0_85_i;		 // PSC Offset 84
-    float v2_5mgt_v;	 // PSC Offset 88
-    float v2_5mgt_i;	 // PSC Offset 92
-    float v1_2mgt_v;	 // PSC Offset 96
-    float v1_2mgt_i;	 // PSC Offset 100
-    float v0_9mgt_v;	 // PSC Offset 104
-    float v0_9mgt_i;     // PSC Offset 108
-    float reg_temp[3];   // PSC Offset 112
-    u32  rsvd2[4];       // PSC Offset 124
-    float sfp_temp[6];   // PSC Offset 140
-    float sfp_vcc[6];    // PSC Offset 164
-    float sfp_txbias[6]; // PSC Offset 188
-    float sfp_txpwr[6];  // PSC Offset 212
-    float sfp_rxpwr[6];  // PSC Offset 236
+
+    float sfp_temp[2];   // PSC Offset 140
+    float sfp_vcc[2];    // PSC Offset 164
+    float sfp_txbias[2]; // PSC Offset 188
+    float sfp_txpwr[2];  // PSC Offset 212
+    float sfp_rxpwr[2];  // PSC Offset 236
     u32 rsvd3[5];        // PSC Offset 260
-    float pwrmgmt_temp;  // PSC Offset 280  LTC2977 Temperature
-    u32   rsvd4[10];
+
     float therm_temp[6]; // PSC Offset 324
 } SysHealthMsg;
 
