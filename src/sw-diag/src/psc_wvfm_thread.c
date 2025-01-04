@@ -65,6 +65,7 @@ void ReadFAWvfm(char *msg) {
     u16 *msg_u16ptr;
     u32 *msg_u32ptr;
     int regval;
+    u32 wordcnt;
 
     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_STREAMENB_REG, 1);
     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_STREAMENB_REG, 0);
@@ -81,7 +82,16 @@ void ReadFAWvfm(char *msg) {
      msg[3] = (short int) MSGID51;
      *++msg_u32ptr = htonl(MSGID51LEN); //body length
 
+     xil_printf("Words in FIFO = %d\n",wordcnt);
+     while (wordcnt < 8000) {
+    	 wordcnt = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_CNT_REG);
+         xil_printf("Words in FIFO = %d\n",wordcnt);
+         usleep(1000);
+     }
 
+     // stop writing into the FIFO
+     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_TRIG_CLEAR_REG, 1);
+     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_TRIG_CLEAR_REG, 0);
 
     msg_u16ptr = (u16 *) &msg[MSGHDRLEN];
     for (i=0;i<8000;i++) {
@@ -96,10 +106,12 @@ void ReadFAWvfm(char *msg) {
     }
 
     //printf("Resetting FIFO...\n");
+    xil_printf("Resetting FIFO...\r\n");
     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 1);
     usleep(1);
     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 0);
     usleep(10);
+    xil_printf("Words in FIFO = %d\n",wordcnt);
 
 
 }
@@ -116,7 +128,7 @@ void psc_wvfm_thread()
 	int clilen;
 	struct sockaddr_in serv_addr, cli_addr;
     u32 loopcnt=0;
-    s32 n;
+    s32 n, trigstat;
     u32 trignum=0, prevtrignum=0;
 
 
@@ -168,7 +180,15 @@ reconnect:
 		loopcnt++;
 		vTaskDelay(pdMS_TO_TICKS(1000));
 
-        //xil_printf("Wvfm(%d) Sending Live Data...\r\n",loopcnt);
+        //Issue a soft trigger and read fifo
+		trigstat = Xil_In32(XPAR_M_AXI_BASEADDR + FA_TRIG_STAT_REG);
+		xil_printf("Trigger Status: %d\r\n",trigstat);
+		xil_printf("Issuing soft trigger\r\n");
+	    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG, 1);
+	    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG, 0);
+	    vTaskDelay(pdMS_TO_TICKS(10));
+		trigstat = Xil_In32(XPAR_M_AXI_BASEADDR + FA_TRIG_STAT_REG);
+		xil_printf("Trigger Status: %d\r\n",trigstat);
         ReadFAWvfm(msgid51_buf);
         //write out Live ADC data (msg51)
         Host2NetworkConvWvfm(msgid51_buf,sizeof(msgid51_buf)+MSGHDRLEN);

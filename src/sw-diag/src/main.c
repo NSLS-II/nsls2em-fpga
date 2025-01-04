@@ -152,6 +152,59 @@ void print_firmware_version()
 
 
 
+void ReadFAWvfmMain() {
+
+    u32 i,j;
+    u32 regval;
+    u32 wordcnt;
+
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_STREAMENB_REG, 1);
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_STREAMENB_REG, 0);
+    usleep(100);
+    //xil_printf("Reading ADC FIFO...\r\n");
+    //regval = Xil_In32(XPAR_M_AXI_BASEADDR + ADCFIFO_CNT_REG);
+    //xil_printf("\tWords in ADC FIFO = %d\r\n",regval);
+
+
+	 wordcnt = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_CNT_REG);
+     xil_printf("Words in FIFO = %d\r\n",wordcnt);
+     while (wordcnt < 1000) {
+    	 wordcnt = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_CNT_REG);
+         xil_printf("Words in FIFO = %d\r\n",wordcnt);
+         usleep(1000);
+     }
+
+     // stop writing into the FIFO
+     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_TRIG_CLEAR_REG, 1);
+     Xil_Out32(XPAR_M_AXI_BASEADDR + FA_TRIG_CLEAR_REG, 0);
+
+
+    xil_printf("\r\n");
+    for (i=0;i<10;i++) {
+    	for (j=0;j<16;j++) {
+    	   regval = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_DATA_REG);
+    	   xil_printf("%d   ",regval);
+    	}
+        xil_printf("\r\n");
+    }	
+    
+
+    //printf("Resetting FIFO...\n");
+    xil_printf("Resetting FIFO...\r\n");
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 1);
+    usleep(1);
+    Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 0);
+    usleep(10);
+	wordcnt = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_CNT_REG);
+    xil_printf("Words in FIFO = %d\n",wordcnt);
+
+
+}
+
+
+
+
+
 void main_thread(void *p)
 {
 
@@ -245,6 +298,7 @@ int main()
     u32 i,j;
 	s32 adc_raw;
     struct SAdataMsg SAdata;
+    u32 trigstat, wordcnt;
 
 	xil_printf("NSLS2 Electrometer ...\r\n");
     print_firmware_version();
@@ -254,6 +308,9 @@ int main()
     //set ADC clock source to internal (no EVR)
 	Xil_Out32(XPAR_M_AXI_BASEADDR + MACHCLK_SEL_REG, 0);
 
+	//Set AFE gain to 10mA range
+	Xil_Out32(XPAR_M_AXI_BASEADDR + AFE_CNTRL_REG, 0);
+	
 
     //read Temperature and Power
 	for (i=0;i<4;i++) {
@@ -266,7 +323,7 @@ int main()
 	}
 
 	// print raw adc values
-	for (i=0;i<20;i++) {
+	for (i=0;i<5;i++) {
 	    for (j=0;j<8;j++) {
 		  adc_raw = Xil_In32(XPAR_M_AXI_BASEADDR + ADCRAW_CHA_REG + j*4);
 	      xil_printf("%d  ",adc_raw);
@@ -277,7 +334,7 @@ int main()
 
 
     // print SA data
-    for (i=0;i<20;i++) {
+    for (i=0;i<5;i++) {
       SAdata.count     = Xil_In32(XPAR_M_AXI_BASEADDR + SA_TRIGNUM_REG);
       SAdata.evr_ts_s  = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_S_REG);
       SAdata.evr_ts_ns = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_NS_REG);
@@ -294,6 +351,35 @@ int main()
 			SAdata.sum,SAdata.xpos_nm,SAdata.ypos_nm);
       sleep(1);
     }
+/*
+    while (1) {
+      //Read FA
+      //printf("Resetting FIFO...\n");
+      // stop writing into the FIFO
+      xil_printf("Clearing Trigger...\r\n");
+      Xil_Out32(XPAR_M_AXI_BASEADDR + FA_TRIG_CLEAR_REG, 1);
+      Xil_Out32(XPAR_M_AXI_BASEADDR + FA_TRIG_CLEAR_REG, 0);    	
+      xil_printf("Resetting FIFO...\r\n");
+      Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 1);
+      usleep(1);
+      Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 0);
+      usleep(10);
+      
+	  wordcnt = Xil_In32(XPAR_M_AXI_BASEADDR + FA_FIFO_CNT_REG);	    
+      xil_printf("Words in FIFO = %d\n",wordcnt);   	
+	  trigstat = Xil_In32(XPAR_M_AXI_BASEADDR + FA_TRIG_STAT_REG);	  
+	  xil_printf("Trigger Status: %d\r\n",trigstat);
+	  xil_printf("Issuing soft trigger\r\n");
+	  Xil_Out32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG, 1);
+	  Xil_Out32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG, 0);
+	  usleep(10);
+	  trigstat = Xil_In32(XPAR_M_AXI_BASEADDR + FA_TRIG_STAT_REG);
+	  xil_printf("Trigger Status: %d\r\n",trigstat);
+      ReadFAWvfmMain();
+      sleep(1);
+    }
+*/
+
 
 	//EVR reset
 	Xil_Out32(XPAR_M_AXI_BASEADDR + GTX_RESET_REG, 1);

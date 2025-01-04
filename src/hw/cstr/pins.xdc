@@ -152,86 +152,86 @@ set_property IOSTANDARD LVCMOS18 [get_ports {afe_gain[7]}]
 
 
 # ad5060  BIAS DAC
-set_property PACKAGE_PIN AB22 [get_ports {biasdac_sclk}]
-set_property IOSTANDARD LVCMOS33 [get_ports {biasdac_sclk}]
-set_property PACKAGE_PIN AB21 [get_ports {biasdac_din}]
-set_property IOSTANDARD LVCMOS33 [get_ports {biasdac_din}]
-set_property PACKAGE_PIN AA19 [get_ports {biasdac_sync}]
-set_property IOSTANDARD LVCMOS33 [get_ports {biasdac_sync}]
+set_property PACKAGE_PIN AB22 [get_ports biasdac_sclk]
+set_property IOSTANDARD LVCMOS33 [get_ports biasdac_sclk]
+set_property PACKAGE_PIN AB21 [get_ports biasdac_din]
+set_property IOSTANDARD LVCMOS33 [get_ports biasdac_din]
+set_property PACKAGE_PIN AA19 [get_ports biasdac_sync]
+set_property IOSTANDARD LVCMOS33 [get_ports biasdac_sync]
 
 
 
 
 # Motor Control Feedback DAC
-set_property PACKAGE_PIN U19 [get_ports {fdbkdac_syncn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {fdbkdac_syncn}]
-set_property DRIVE 12 [get_ports {fdbkdac_syncn}]
-set_property SLEW SLOW [get_ports {fdbkdac_syncn}]
+set_property PACKAGE_PIN U19 [get_ports fdbkdac_syncn]
+set_property IOSTANDARD LVCMOS33 [get_ports fdbkdac_syncn]
+set_property DRIVE 12 [get_ports fdbkdac_syncn]
+set_property SLEW SLOW [get_ports fdbkdac_syncn]
 
-set_property PACKAGE_PIN AA15 [get_ports {fdbkdac_sclk}]
-set_property IOSTANDARD LVCMOS33 [get_ports {fdbkdac_sclk}]
-set_property DRIVE 12 [get_ports {fdbkdac_sclk}]
-set_property SLEW SLOW [get_ports {fdbkdac_sclk}]
+set_property PACKAGE_PIN AA15 [get_ports fdbkdac_sclk]
+set_property IOSTANDARD LVCMOS33 [get_ports fdbkdac_sclk]
+set_property DRIVE 12 [get_ports fdbkdac_sclk]
+set_property SLEW SLOW [get_ports fdbkdac_sclk]
 
-set_property PACKAGE_PIN AA14 [get_ports {fdbkdac_sdin}]
-set_property IOSTANDARD LVCMOS33 [get_ports {fdbkdac_sdin}]
-set_property DRIVE 12 [get_ports {fdbkdac_sdin}]
-set_property SLEW SLOW [get_ports {fdbkdac_sdin}]
+set_property PACKAGE_PIN AA14 [get_ports fdbkdac_sdin]
+set_property IOSTANDARD LVCMOS33 [get_ports fdbkdac_sdin]
+set_property DRIVE 12 [get_ports fdbkdac_sdin]
+set_property SLEW SLOW [get_ports fdbkdac_sdin]
 
-set_property PACKAGE_PIN Y15 [get_ports {fdbkdac_sdo}]
-set_property IOSTANDARD LVCMOS33 [get_ports {fdbkdac_sdo}]
+set_property PACKAGE_PIN Y15 [get_ports fdbkdac_sdo]
+set_property IOSTANDARD LVCMOS33 [get_ports fdbkdac_sdo]
 
 
-set_property PACKAGE_PIN V19 [get_ports {fdbkdac_ldacn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {fdbkdac_ldacn}]
-set_property DRIVE 12 [get_ports {fdbkdac_ldacn}]
-set_property SLEW SLOW [get_ports {fdbkdac_ldacn}]
+set_property PACKAGE_PIN V19 [get_ports fdbkdac_ldacn]
+set_property IOSTANDARD LVCMOS33 [get_ports fdbkdac_ldacn]
+set_property DRIVE 12 [get_ports fdbkdac_ldacn]
+set_property SLEW SLOW [get_ports fdbkdac_ldacn]
 
-set_property PACKAGE_PIN Y14 [get_ports {fdbkdac_clrn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {fdbkdac_clrn}]
-set_property DRIVE 12 [get_ports {fdbkdac_clrn}]
-set_property SLEW SLOW [get_ports {fdbkdac_clrn}]
+set_property PACKAGE_PIN Y14 [get_ports fdbkdac_clrn]
+set_property IOSTANDARD LVCMOS33 [get_ports fdbkdac_clrn]
+set_property DRIVE 12 [get_ports fdbkdac_clrn]
+set_property SLEW SLOW [get_ports fdbkdac_clrn]
 
-set_property PACKAGE_PIN V18 [get_ports {fdbkdac_bin2s}]
-set_property IOSTANDARD LVCMOS33 [get_ports {fdbkdac_bin2s}]
-set_property DRIVE 12 [get_ports {fdbkdac_bin2s}]
-set_property SLEW SLOW [get_ports {fdbkdac_bin2s}]
+set_property PACKAGE_PIN V18 [get_ports fdbkdac_bin2s]
+set_property IOSTANDARD LVCMOS33 [get_ports fdbkdac_bin2s]
+set_property DRIVE 12 [get_ports fdbkdac_bin2s]
+set_property SLEW SLOW [get_ports fdbkdac_bin2s]
 
 
 # Heat Control DAC
-set_property PACKAGE_PIN AA11 [get_ports {heatdac_syncn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {heatdac_syncn}]
-set_property DRIVE 12 [get_ports {heatdac_syncn}]
-set_property SLEW SLOW [get_ports {heatdac_syncn}]
+set_property PACKAGE_PIN AA11 [get_ports heatdac_syncn]
+set_property IOSTANDARD LVCMOS33 [get_ports heatdac_syncn]
+set_property DRIVE 12 [get_ports heatdac_syncn]
+set_property SLEW SLOW [get_ports heatdac_syncn]
 
-set_property PACKAGE_PIN Y19 [get_ports {heatdac_sclk}]
-set_property IOSTANDARD LVCMOS33 [get_ports {heatdac_sclk}]
-set_property DRIVE 12 [get_ports {heatdac_sclk}]
-set_property SLEW SLOW [get_ports {heatdac_sclk}]
+set_property PACKAGE_PIN Y19 [get_ports heatdac_sclk]
+set_property IOSTANDARD LVCMOS33 [get_ports heatdac_sclk]
+set_property DRIVE 12 [get_ports heatdac_sclk]
+set_property SLEW SLOW [get_ports heatdac_sclk]
 
-set_property PACKAGE_PIN Y18 [get_ports {heatdac_sdin}]
-set_property IOSTANDARD LVCMOS33 [get_ports {heatdac_sdin}]
-set_property DRIVE 12 [get_ports {heatdac_sdin}]
-set_property SLEW SLOW [get_ports {heatdac_sdin}]
+set_property PACKAGE_PIN Y18 [get_ports heatdac_sdin]
+set_property IOSTANDARD LVCMOS33 [get_ports heatdac_sdin]
+set_property DRIVE 12 [get_ports heatdac_sdin]
+set_property SLEW SLOW [get_ports heatdac_sdin]
 
-set_property PACKAGE_PIN AB19 [get_ports {heatdac_sdo}]
-set_property IOSTANDARD LVCMOS33 [get_ports {heatdac_sdo}]
+set_property PACKAGE_PIN AB19 [get_ports heatdac_sdo]
+set_property IOSTANDARD LVCMOS33 [get_ports heatdac_sdo]
 
 
-set_property PACKAGE_PIN AB11 [get_ports {heatdac_ldacn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {heatdac_ldacn}]
-set_property DRIVE 12 [get_ports {heatdac_ldacn}]
-set_property SLEW SLOW [get_ports {heatdac_ldacn}]
+set_property PACKAGE_PIN AB11 [get_ports heatdac_ldacn]
+set_property IOSTANDARD LVCMOS33 [get_ports heatdac_ldacn]
+set_property DRIVE 12 [get_ports heatdac_ldacn]
+set_property SLEW SLOW [get_ports heatdac_ldacn]
 
-set_property PACKAGE_PIN AB18 [get_ports {heatdac_clrn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {heatdac_clrn}]
-set_property DRIVE 12 [get_ports {heatdac_clrn}]
-set_property SLEW SLOW [get_ports {heatdac_clrn}]
+set_property PACKAGE_PIN AB18 [get_ports heatdac_clrn]
+set_property IOSTANDARD LVCMOS33 [get_ports heatdac_clrn]
+set_property DRIVE 12 [get_ports heatdac_clrn]
+set_property SLEW SLOW [get_ports heatdac_clrn]
 
-set_property PACKAGE_PIN T16 [get_ports {heatdac_bin2s}]
-set_property IOSTANDARD LVCMOS33 [get_ports {heatdac_bin2s}]
-set_property DRIVE 12 [get_ports {heatdac_bin2s}]
-set_property SLEW SLOW [get_ports {heatdac_bin2s}]
+set_property PACKAGE_PIN T16 [get_ports heatdac_bin2s]
+set_property IOSTANDARD LVCMOS33 [get_ports heatdac_bin2s]
+set_property DRIVE 12 [get_ports heatdac_bin2s]
+set_property SLEW SLOW [get_ports heatdac_bin2s]
 
 
 
@@ -331,31 +331,31 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sfp_sda[1]}]
 
 
 # fan tach and pwm
-set_property PACKAGE_PIN N6 [get_ports {fan_tach}]
-set_property IOSTANDARD LVCMOS18 [get_ports {fan_tach}]
+set_property PACKAGE_PIN N6 [get_ports fan_tach]
+set_property IOSTANDARD LVCMOS18 [get_ports fan_tach]
 
-set_property PACKAGE_PIN C8 [get_ports {fan_i2c_sda}]
-set_property IOSTANDARD LVCMOS18 [get_ports {fan_i2c_sda}]
-set_property DRIVE 12 [get_ports {fan_i2c_sda}]
-set_property SLEW SLOW [get_ports {fan_i2c_sda}]
+set_property PACKAGE_PIN C8 [get_ports fan_i2c_sda]
+set_property IOSTANDARD LVCMOS18 [get_ports fan_i2c_sda]
+set_property DRIVE 12 [get_ports fan_i2c_sda]
+set_property SLEW SLOW [get_ports fan_i2c_sda]
 
-set_property PACKAGE_PIN B8 [get_ports {fan_i2c_scl}]
-set_property IOSTANDARD LVCMOS18 [get_ports {fan_i2c_scl}]
-set_property DRIVE 12 [get_ports {fan_i2c_scl}]
-set_property SLEW SLOW [get_ports {fan_i2c_scl}]
+set_property PACKAGE_PIN B8 [get_ports fan_i2c_scl]
+set_property IOSTANDARD LVCMOS18 [get_ports fan_i2c_scl]
+set_property DRIVE 12 [get_ports fan_i2c_scl]
+set_property SLEW SLOW [get_ports fan_i2c_scl]
 
 
 
 # voltage, current and temp i2c
-set_property PACKAGE_PIN A7 [get_ports {ivt_i2c_sda}]
-set_property IOSTANDARD LVCMOS18 [get_ports {ivt_i2c_sda}]
-set_property DRIVE 12 [get_ports {ivt_i2c_sda}]
-set_property SLEW SLOW [get_ports {ivt_i2c_sda}]
+set_property PACKAGE_PIN A7 [get_ports ivt_i2c_sda]
+set_property IOSTANDARD LVCMOS18 [get_ports ivt_i2c_sda]
+set_property DRIVE 12 [get_ports ivt_i2c_sda]
+set_property SLEW SLOW [get_ports ivt_i2c_sda]
 
-set_property PACKAGE_PIN A6 [get_ports {ivt_i2c_scl}]
-set_property IOSTANDARD LVCMOS18 [get_ports {ivt_i2c_scl}]
-set_property DRIVE 12 [get_ports {ivt_i2c_scl}]
-set_property SLEW SLOW [get_ports {ivt_i2c_scl}]
+set_property PACKAGE_PIN A6 [get_ports ivt_i2c_scl]
+set_property IOSTANDARD LVCMOS18 [get_ports ivt_i2c_scl]
+set_property DRIVE 12 [get_ports ivt_i2c_scl]
+set_property SLEW SLOW [get_ports ivt_i2c_scl]
 
 
 
@@ -388,18 +388,19 @@ set_property IOSTANDARD LVCMOS33 [get_ports {gpio_out[3]}]
 
 
 # Thermistor Readback  LTC2986
-set_property PACKAGE_PIN V16 [get_ports {therm_sclk}]
-set_property IOSTANDARD LVCMOS33 [get_ports {therm_sclk}]
+set_property PACKAGE_PIN V16 [get_ports therm_sclk]
+set_property IOSTANDARD LVCMOS33 [get_ports therm_sclk]
 
-set_property PACKAGE_PIN W16 [get_ports {therm_sdo}]
-set_property IOSTANDARD LVCMOS33 [get_ports {therm_sdo}]
+set_property PACKAGE_PIN W16 [get_ports therm_sdo]
+set_property IOSTANDARD LVCMOS33 [get_ports therm_sdo]
 
-set_property PACKAGE_PIN W15 [get_ports {therm_sdi}]
-set_property IOSTANDARD LVCMOS33 [get_ports {therm_sdi}]
+set_property PACKAGE_PIN W15 [get_ports therm_sdi]
+set_property IOSTANDARD LVCMOS33 [get_ports therm_sdi]
 
-set_property PACKAGE_PIN V15 [get_ports {therm_csn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {therm_csn}]
+set_property PACKAGE_PIN V15 [get_ports therm_csn]
+set_property IOSTANDARD LVCMOS33 [get_ports therm_csn]
 
-set_property PACKAGE_PIN W18 [get_ports {therm_rstn}]
-set_property IOSTANDARD LVCMOS33 [get_ports {therm_rstn}]
+set_property PACKAGE_PIN W18 [get_ports therm_rstn]
+set_property IOSTANDARD LVCMOS33 [get_ports therm_rstn]
+
 
