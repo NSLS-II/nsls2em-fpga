@@ -1,0 +1,143 @@
+//read_fa.c from Joe
+#include <errno.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+
+
+#define FIFODATAREG  128
+#define FIFOWDCNTREG 129
+#define SOFTTRIGREG 130
+#define FADIVREG 133
+#define FIFOCNTRLREG 134 
+#define TRIGCLR 135
+ 
+int main(int argc, char *argv[])
+{
+    int dev;
+    char filename[40], buf[10];
+    int i,j;
+    float rdback, voltage;
+    int boardNum, channelNum;
+    unsigned int fpgaAddr, fpgaData;
+    volatile unsigned int *fpgabase;
+    int fd;
+    float elapsedTime, runTime;
+    int fadatabuf[2000000];
+    int wordCnt, faEnabled, wordsRead, regVal;
+    int num_samples;
+    int error=0;
+    int samp_cnt = 0;
+    int fadiv;
+    float a,b,c,d,sum,xpos,ypos,kx,ky;
+
+    kx = 10000;  //um
+    ky = 10000; //um
+ 
+    if (argc < 2) {
+       printf("Usage: %s [samples] \n",argv[0]);
+       exit(1);
+    }
+    num_samples = strtol(argv[1],NULL,0);
+    num_samples = 16 * num_samples; //(16 32bit words are read out for each samp
+le) 
+
+    /* Open /dev/mem for writing to FPGA register */
+    fd = open("/dev/mem",O_RDWR|O_SYNC);
+    if (fd < 0)  {
+      printf("Can't open /dev/mem\n");
+      return 1;
+    }
+    //printf("Opened /dev/mem\r\n");
+
+    fpgabase = (unsigned int *) mmap(0,255,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0x
+43D00000);
+    if (fpgabase == NULL) {
+      printf("Can't mmap\n");
+      return 1;
+    }
+    fpgabase[SOFTTRIGREG] = 0;
+    printf("FPGA Version : %d\n",fpgabase[7]);
+    fadiv = fpgabase[FADIVREG];
+    printf("FA Divider: %d\n",fadiv);
+    
+    
+    printf("Resetting FIFO...\n");
+    fpgabase[FIFOCNTRLREG] = 0x1;
+    usleep(100);
+    fpgabase[FIFOCNTRLREG] = 0x0;
+    usleep(100); 
+    
+    printf("Words in FIFO = %d\n",fpgabase[FIFOWDCNTREG]); 
+    printf("Triggering FA Data to Start...\n");
+    fpgabase[SOFTTRIGREG] = 0x1; 
+    fpgabase[SOFTTRIGREG] = 0x0; 
+    printf("Waiting for FA Data to Start...\n");
+    while ((fpgabase[SOFTTRIGREG] & 0x1) == 0)
+         usleep(10000);
+    printf("Running...\n");
+    faEnabled = 1;
+    wordCnt = fpgabase[FIFOWDCNTREG];
+    wordsRead = 0;
+    printf("FIFO Word Count: %d\n",wordCnt);
+
+    while (wordsRead < num_samples) {
+       wordCnt = fpgabase[FIFOWDCNTREG];
+       if (wordCnt > 100) {
+          printf("FIFO Read Count=%d   Total Words Read = %d    Reading Another 
+Block...\n",wordCnt,wordsRead);
+          for (i=0;i<100;i++) {
+             regVal = fpgabase[FIFODATAREG]; 
+             fadatabuf[wordsRead] = regVal;
+             wordsRead++;
+          } 
+       }
+       //usleep(10000); //sleep for 10ms (should be 100 10KHz samples)
+       //faEnabled = fpgabase[SOFTTRIGREG] & 0x1; 
+    }       
+    printf("Stopping Run...");
+    fpgabase[TRIGCLR] = 0x1;
+    fpgabase[TRIGCLR] = 0x0;    
+ 
+    printf("Run Complete... ");
+    printf("Words Read = %d\n",wordsRead);
+    printf("Remaining FA Word Count : %d\n",fpgabase[FIFOWDCNTREG]);
+    printf("Results...\n");
+    samp_cnt = 0;
+    error=0;
+    //fadatabuf[100] = 0;  //inject error
+    for (i=0;i<num_samples;i=i+16) {
+         //header 0x80000000 
+         printf("%8x   ",fadatabuf[i]);       // Header: 0x80000000     
+         //sample counter 
+         printf("%8d   ",fadatabuf[i+1]);    // Sample # 
+         printf("%8d   ",fadatabuf[i+2]);    // timestamp slow
+         printf("%8d   ",fadatabuf[i+3]);    // timestamp fast
+         printf("%8d   ",fadatabuf[i+4]);    // cha mag 
+         printf("%8d   ",fadatabuf[i+5]);    // chb mag 
+         printf("%8d   ",fadatabuf[i+6]);    // chc mag 
+         printf("%8d   ",fadatabuf[i+7]);    // chd mag
+         printf("%8d   ",fadatabuf[i+8]);    // sum
+         printf("%8f   ",(float)fadatabuf[i+9]/1e3);    // xpos
+         printf("%8f   ",(float)fadatabuf[i+10]/1e3);   // ypos
+         a = fadatabuf[i+4];
+         b = fadatabuf[i+5];
+         c = fadatabuf[i+6];
+         d = fadatabuf[i+7];
+         sum = a + b + c + d;
+         xpos = kx * (((a + d ) - (b + c)) / sum); 
+         ypos = ky * (((a + b) - (c + d)) / sum);
+         printf("%f  %f  %f",xpos, ypos, sum);
+
+         printf("\n");
+       }
+
+}
+
