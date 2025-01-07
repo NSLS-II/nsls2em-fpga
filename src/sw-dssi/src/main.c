@@ -11,7 +11,7 @@
 #include "time.h"
 #include "xil_io.h"
 #include "nsls2em.h"
-#include "iobus.h"
+//#include "iobus.h"
 #include "xqspips.h"
 #include "QSPI.h"
 
@@ -65,11 +65,15 @@ int main() {
 
   //Init parameters
   xil_printf("\n\rNSLS2_EM\n\r");
-  xil_printf("FPGA Version: %d\r\n", IOBUS_mReadReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, 0x1C));
+  xil_printf("FPGA Version: %d\r\n", Xil_In32(XPAR_M_AXI_BASEADDR + FPGA_VER_REG));
   //FA rate: 10kHz
-  IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, 0x214, 38);
+  //IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, 0x214, 38);
+  Xil_Out32(XPAR_M_AXI_BASEADDR + FA_DIVIDE_REG, 38);
+  xil_printf("FA_DIVIDE: %d\r\n", Xil_In32(XPAR_M_AXI_BASEADDR + FA_DIVIDE_REG));
   //Internal clock by default
-  IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, 0x2C, 0);
+  //IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, 0x2C, 0);
+  Xil_Out32(XPAR_M_AXI_BASEADDR + MACHCLK_SEL_REG, 0);
+
   //Read mac, IP, netmask and gateway
   MacIPSetup(0);
   sys_thread_new("main_thrd", (void( * )(void * )) main_thread, 0, THREAD_STACKSIZE, DEFAULT_THREAD_PRIO);

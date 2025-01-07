@@ -104,6 +104,8 @@ architecture behv of ps_io is
 
 begin
 
+reg_i.fpgaver.data.data <= std_logic_vector(to_unsigned(FPGA_VERSION,32));
+
 reg_i.gpio_in.data.data <= gpio_in;
 
 gpio_out <= reg_o.gpio_out.data.data;

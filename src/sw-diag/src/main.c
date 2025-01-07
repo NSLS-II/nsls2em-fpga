@@ -26,7 +26,7 @@
 #define SYSMON_DEVICE_ID XPAR_XSYSMONPSU_0_DEVICE_ID
 
 
-#define PLATFORM_ZYNQMP
+#define PLATFORM_ZYNQ
 
 //#define DEFAULT_IP_ADDRESS "10.0.142.43"
 //#define DEFAULT_IP_MASK "255.255.255.0"
@@ -305,6 +305,8 @@ int main()
 
 	init_i2c();
 
+	xil_printf("FPGA Version: %d\r\n", Xil_In32(XPAR_M_AXI_BASEADDR + FPGA_VER_REG));
+
     //set ADC clock source to internal (no EVR)
 	Xil_Out32(XPAR_M_AXI_BASEADDR + MACHCLK_SEL_REG, 0);
 
@@ -313,7 +315,7 @@ int main()
 	
 
     //read Temperature and Power
-	for (i=0;i<4;i++) {
+	for (i=0;i<1;i++) {
 	  temp0 = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE0_REG) / 128;
 	  temp1 = (float) Xil_In32(XPAR_M_AXI_BASEADDR + TEMP_SENSE1_REG) / 128;
 	  vin = (float) Xil_In32(XPAR_M_AXI_BASEADDR + PWR_VIN_REG) * 0.00125;
@@ -323,7 +325,7 @@ int main()
 	}
 
 	// print raw adc values
-	for (i=0;i<5;i++) {
+	for (i=0;i<1;i++) {
 	    for (j=0;j<8;j++) {
 		  adc_raw = Xil_In32(XPAR_M_AXI_BASEADDR + ADCRAW_CHA_REG + j*4);
 	      xil_printf("%d  ",adc_raw);
@@ -334,7 +336,7 @@ int main()
 
 
     // print SA data
-    for (i=0;i<5;i++) {
+    for (i=0;i<1;i++) {
       SAdata.count     = Xil_In32(XPAR_M_AXI_BASEADDR + SA_TRIGNUM_REG);
       SAdata.evr_ts_s  = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_S_REG);
       SAdata.evr_ts_ns = Xil_In32(XPAR_M_AXI_BASEADDR + EVR_TS_NS_REG);

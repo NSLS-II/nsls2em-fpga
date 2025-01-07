@@ -12,7 +12,7 @@
 #include "xil_io.h"
 #include "xil_cache.h"
 #include "nsls2em.h"
-#include "iobus.h"
+//#include "iobus.h"
 
 static int
 lwip_writeall(int s,
@@ -42,24 +42,27 @@ static int processCmdData(char frameID, unsigned int grepBytes) {
       ((Xuint32) rxBuf[byteIndex + 2] << 8) + ((Xuint32) rxBuf[byteIndex + 3]);
 
     //don't write to fifo-related control registers. They are controlled by fifo operation in a group
-    if((regIndex < FIFO_REG_START)&&(regIndex!=FA_RATE_SEL)&&(regIndex!=REG_DAC_DATA)
-    		&&(regIndex!=REG_DAC_OP_MODE)&&(regIndex!=REG_DAC_LOAD)&&(regIndex!=I_GAIN_SEL))
-    	IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, regIndex * 4, regData);
-    if(regIndex==I_GAIN_SEL) {
+    //if((regIndex < FIFO_REG_START)&&(regIndex!=FA_RATE_SEL)&&(regIndex!=REG_DAC_DATA)
+    //		&&(regIndex!=REG_DAC_OP_MODE)&&(regIndex!=REG_DAC_LOAD)&&(regIndex!=I_GAIN_SEL))
+    	//Xil_Out32(XPAR_M_AXI_BASEADDR + regIndex, regData);
+    if(regIndex==AFE_CNTRL_REG) {
     	//R28 changed
-    	if(regData != I_GAIN_Reg28) IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, I_GAIN_SEL * 4, regData);
+    	if(regData != I_GAIN_Reg28)  Xil_Out32(XPAR_M_AXI_BASEADDR + AFE_CNTRL_REG, regData);
     	I_GAIN_Reg28 = regData;
     }
   }
   //update DAC register for the four channels. Reg 210, 211, 212,213
+  /*
   for (index = 0; index < 4; index++) {
 	  regIndex = DAC_DATA_REG_OFFSET + index;
 	  byteIndex = 4 * regIndex;
 	  regData = ((Xuint32) rxBuf[byteIndex] << 24) + ((Xuint32) rxBuf[byteIndex + 1] << 16) +
 	        ((Xuint32) rxBuf[byteIndex + 2] << 8) + ((Xuint32) rxBuf[byteIndex + 3]);
-	  IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_DATA * 4, regData);
+	  //IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_DATA * 4, regData);
+	  Xil_Out32(XPAR_M_AXI_BASEADDR + FDBK_DAC_DATA_REG, regData);
 	  usleep(5);
   }
+  */
   writeFlag = 1;
 }
 
@@ -79,8 +82,8 @@ void cmdProcess(void * p) {
   quadSyncFifoTrigReg = 0;
   fifoRun = 0;
   xil_printf("\n\r cmdProcess(1) \n\r");
-  xil_printf("verion=\n\r %d\n\r", IOBUS_mReadReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, 7 * 4));
-  word = IOBUS_mReadReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, 7 * 4);
+  xil_printf("verion=\n\r %d\n\r", Xil_In32(XPAR_M_AXI_BASEADDR + FPGA_VER_REG));
+  word = Xil_In32(XPAR_M_AXI_BASEADDR + FPGA_VER_REG);
 
   //Init. DAC
   DAC_Init();
@@ -135,14 +138,16 @@ void cmdProcess(void * p) {
           txBuf[6] = 0x05;
           txBuf[7] = 0x78;
           for (i = 0; i < 88; i++) {
-            word = IOBUS_mReadReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, i * 4);
+            //word = IOBUS_mReadReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, i * 4);
+            word = Xil_In32(XPAR_M_AXI_BASEADDR + i*4);
             txBuf[8 + 4 * i] = (char)(word >> 24); txBuf[9 + 4 * i] = (char)(word >> 16);
             txBuf[10 + 4 * i] = (char)(word >> 8); txBuf[11 + 4 * i] = (char)(word);
             //usleep(1);
           }
           //all fifo register, except fifidata
           for (i = 129; i < 136; i++) {
-            word = IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, i * 4);
+            //word = IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, i * 4);
+        	word = Xil_In32(XPAR_M_AXI_BASEADDR + i*4);
             txBuf[8 + 4 * i] = (char)(word >> 24); txBuf[9 + 4 * i] = (char)(word >> 16);
             txBuf[10 + 4 * i] = (char)(word >> 8); txBuf[11 + 4 * i] = (char)(word);
             //usleep(1);
@@ -195,11 +200,14 @@ void adcSnapShowProcess(void * p) {
   fifoLength = 0;
   fifoInit = 0;
   //Init the R28
-  IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, I_GAIN_SEL * 4, 0);
+  //IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, I_GAIN_SEL * 4, 0);
+  Xil_Out32(XPAR_M_AXI_BASEADDR + AFE_CNTRL_REG, 0);
   usleep(100000);
-  IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, I_GAIN_SEL * 4, 0x01010101);
+  //IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, I_GAIN_SEL * 4, 0x01010101);
+  Xil_Out32(XPAR_M_AXI_BASEADDR + AFE_CNTRL_REG, 0x01010101);
   usleep(100000);
-  IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, I_GAIN_SEL * 4, 0);
+  //IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, I_GAIN_SEL * 4, 0);
+  Xil_Out32(XPAR_M_AXI_BASEADDR + AFE_CNTRL_REG, 0x01010101);
   usleep(100000);
   xil_printf("\n\r adcSnapShowProcess (2).\n\r");
   while (1) {
@@ -214,33 +222,38 @@ void adcSnapShowProcess(void * p) {
       //Init FIFO
       if (fifoInit == 0) {
         //stop trigger
-        IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, SOFTTRIGREG * 4, 0);
+        //IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, SOFTTRIGREG * 4, 0);
+    	Xil_Out32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG, 0);
         //reset FIFO
-        IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOCNTRLREG * 4, 0x1);
+        //IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOCNTRLREG * 4, 0x1);
+    	Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 1);
         usleep(100);
-        IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOCNTRLREG * 4, 0);
+        //IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOCNTRLREG * 4, 0);
+    	Xil_Out32(XPAR_M_AXI_BASEADDR + FA_FIFO_RST_REG, 0);
         //softTrigger
-        IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, SOFTTRIGREG * 4, 0x1);
+        //IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, SOFTTRIGREG * 4, 0x1);
+    	Xil_Out32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG, 1);
         usleep(1);
-        IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, SOFTTRIGREG * 4, 0);
+        //IOBUS_mWriteReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, SOFTTRIGREG * 4, 0);
+    	Xil_Out32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG, 0);
         //wait for FIFO to run
-        while ((IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, SOFTTRIGREG * 4) & 0x1) == 0) usleep(10);
+        while ((Xil_In32(XPAR_M_AXI_BASEADDR + FA_SOFT_TRIG_REG) & 0x1) == 0) usleep(10);
         xil_printf("FIFO Running...\n\r");
         fifoLength = 0;
-        while (fifoLength < 100) fifoLength = IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOWDCNTREG * 4);
+        //while (fifoLength < 100) fifoLength = IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOWDCNTREG * 4);
         fifoInit = 1;
         fifoIndex = 0;
       }
       //read one block (16 words)
       for (j = 0; j < 16; j++) {
-        fifoData = IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFODATAREG * 4);
+        fifoData = 0; //IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFODATAREG * 4);
         if ((j > 3) && (j < 8)) adcFifo[j - 4] = fifoData;
         fifoIndex++;
       }
       currentCalc(1);
       if (fifoIndex > (fifoLength - 20)) {
         fifoLength = 0;
-        while ((fifoLength < 100) && (fifoRun == 1)) fifoLength = IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOWDCNTREG * 4);
+        while ((fifoLength < 100) && (fifoRun == 1)) fifoLength = 0; //IOBUS_mReadReg(XPAR_IOBUS_1_S00_AXI_BASEADDR, FIFOWDCNTREG * 4);
         fifoIndex = 0;
       }
     }
@@ -372,7 +385,7 @@ void currentCalc(int mode) {
 	      (rxBuf[offsetWordLocation * 4 + 2] << 8) + rxBuf[offsetWordLocation * 4 + 3];
 	    gainReg = (rxBuf[gainWordLocation * 4] << 24) + (rxBuf[gainWordLocation * 4 + 1] << 16) +
 	      (rxBuf[gainWordLocation * 4 + 2] << 8) + rxBuf[gainWordLocation * 4 + 3];
-	    currentADCReg = IOBUS_mReadReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, (CURRENT_REG + i) * 4);
+	    currentADCReg = Xil_In32(XPAR_M_AXI_BASEADDR + ADCRAW_CHA_REG + i);
 
 	    word = offsetReg;
 	    u1.bytes[3] = (word & 0xFF000000) >> 24;  u1.bytes[2] = (word & 0x00FF0000) >> 16;
@@ -510,11 +523,14 @@ int netConfigProcess() {
 void DAC_Init()
 {
 	//Turn on DAC output
-	IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_DATA * 4, 0x10001F);
+	//IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_DATA * 4, 0x10001F);
+	Xil_Out32(XPAR_M_AXI_BASEADDR + FDBK_DAC_DATA_REG, 0x10001F);
 	usleep(1000);
 	//Range: -10V to 10V
-	IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_DATA * 4, 0x0C0004);
+	//IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_DATA * 4, 0x0C0004);
+	Xil_Out32(XPAR_M_AXI_BASEADDR + FDBK_DAC_DATA_REG, 0x10001F);
 	usleep(1000);
 	//Input from ARM
-	IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_OP_MODE * 4, 0);
+	//IOBUS_mWriteReg(XPAR_IOBUS_0_S00_AXI_BASEADDR, REG_DAC_OP_MODE * 4, 0);
+	Xil_Out32(XPAR_M_AXI_BASEADDR + FDBK_DAC_OPMODE_REG, 0);
 }
